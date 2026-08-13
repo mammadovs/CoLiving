@@ -1,0 +1,18 @@
+# === Python & Backend ===
+venv/
+.venv/
+env/
+__pycache__/
+*.pyc
+.env
+.env.local
+
+# === Node.js & Frontend ===
+node_modules/
+dist/
+build/
+npm-debug.log*
+
+# === Системные файлы ===
+.DS_Store
+Thumbs.db
