@@ -2,7 +2,7 @@ from pydantic import BaseModel, EmailStr
 from typing import Optional
 from datetime import datetime
 from decimal import Decimal
-from app.models import GenderEnum, ReligionEnum, UniversityEnum
+from app.models import GenderEnum, ReligionEnum, UniversityEnum, DistrictEnum
 
 # --- USER SCHEMAS ---
 
@@ -33,6 +33,7 @@ class ListingCreate(BaseModel):
     description: Optional[str] = None
     price_per_person: Decimal
     address: str
+    district: DistrictEnum = DistrictEnum.other
     nearest_university: UniversityEnum = UniversityEnum.ada
     available_spots: int
     

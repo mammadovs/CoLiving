@@ -10,6 +10,19 @@ class GenderEnum(str, enum.Enum):
     female = "female"
     any = "any"
 
+class DistrictEnum(str, enum.Enum):
+    nasimi = "Nasimi"
+    yasamal = "Yasamal"
+    sabail = "Sabail"
+    narimanov = "Narimanov"
+    nizami = "Nizami"
+    khatai = "Khatai"
+    binagadi = "Binagadi"
+    qaradagh = "Qaradagh"
+    sabunchu = "Sabunchu"
+    surakhani = "Surakhani"
+    other = "Other"
+
 class ReligionEnum(str, enum.Enum):
     muslim = "muslim"
     christian = "christian"
@@ -45,6 +58,7 @@ class Listing(Base):
     description = Column(String)
     price_per_person = Column(DECIMAL, nullable=False)
     address = Column(String, nullable=False)
+    district = Column(String, default=DistrictEnum.other, nullable=False)
     nearest_university = Column(String, default=UniversityEnum.ada, nullable=False)
     available_spots = Column(Integer, nullable=False)
     
