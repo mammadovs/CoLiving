@@ -1,8 +1,8 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, model_validator
 from typing import Optional
 from datetime import datetime
 from decimal import Decimal
-from app.models import GenderEnum, ReligionEnum, UniversityEnum, DistrictEnum
+from app.models import DistrictEnum, GenderEnum, ReligionEnum, UniversityEnum, SleepScheduleEnum, CleanlinessEnum, NoiseToleranceEnum, GuestFrequencyEnum, ScheduleEnum, PersonalityTypeEnum
 
 # --- USER SCHEMAS ---
 
@@ -13,6 +13,28 @@ class UserCreate(BaseModel):
     is_student: bool = True
     university: UniversityEnum = UniversityEnum.other
     profession: Optional[str] = None
+    budget: Optional[Decimal] = None
+    sleep_schedule: Optional[SleepScheduleEnum] = None
+    cleanliness_level: Optional[CleanlinessEnum] = None
+    religion: Optional[ReligionEnum] = None
+    noise_tolerance: Optional[NoiseToleranceEnum] = None
+    smoking_habit: bool = False
+    drinks_alcohol: bool = False
+    pet_friendly: bool = False
+    guest_frequency: Optional[GuestFrequencyEnum] = None
+    work_or_study_schedule: Optional[ScheduleEnum] = None
+    personality_type: Optional[PersonalityTypeEnum] = None
+
+
+    @model_validator(mode="after")
+    def check_student_email_domain(self):
+        if self.is_student:
+            domain = self.email.split("@")[-1].lower()
+            if not domain.endswith("edu.az"):
+                raise ValueError(
+                    "Students must register with a university email (must end in edu.az)"
+                )
+        return self
 
 class UserResponse(BaseModel):
     id: int
@@ -21,6 +43,17 @@ class UserResponse(BaseModel):
     is_student: bool
     university: UniversityEnum
     profession: Optional[str] = None
+    budget: Optional[Decimal] = None
+    sleep_schedule: Optional[SleepScheduleEnum] = None
+    cleanliness_level: Optional[CleanlinessEnum] = None
+    religion: Optional[ReligionEnum] = None
+    noise_tolerance: Optional[NoiseToleranceEnum] = None
+    smoking_habit: bool = False
+    drinks_alcohol: bool = False
+    pet_friendly: bool = False
+    guest_frequency: Optional[GuestFrequencyEnum] = None
+    work_or_study_schedule: Optional[ScheduleEnum] = None
+    personality_type: Optional[PersonalityTypeEnum] = None
     created_at: datetime
 
     class Config:
@@ -54,6 +87,25 @@ class ListingResponse(ListingCreate):
 
     class Config:
         from_attributes = True
+
+class CompatibilityBreakdown(BaseModel):
+    sleep_schedule: int
+    cleanliness_level: int
+    religion: int
+    noise_tolerance: int
+    smoking_habit: int
+    drinks_alcohol: int
+    pet_friendly: int
+    guest_frequency: int
+    work_or_study_schedule: int
+    personality_type: int
+    budget: int
+
+class CompatibilityScoreResponse(BaseModel):
+    user_id: int
+    compared_with_user_id: int
+    compatibility_score: int
+    breakdown: CompatibilityBreakdown
 
 class Token(BaseModel):
     access_token: str

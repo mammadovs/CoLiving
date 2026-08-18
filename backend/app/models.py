@@ -10,6 +10,36 @@ class GenderEnum(str, enum.Enum):
     female = "female"
     any = "any"
 
+class SleepScheduleEnum(str, enum.Enum):
+    early_bird = "early_bird"
+    night_owl = "night_owl"
+    flexible = "flexible"
+
+class CleanlinessEnum(str, enum.Enum):
+    very_tidy = "very_tidy"
+    average = "average"
+    relaxed = "relaxed"
+
+class NoiseToleranceEnum(str, enum.Enum):
+    quiet = "quiet"
+    moderate = "moderate" 
+    loud_ok = "loud_ok"
+
+class GuestFrequencyEnum(str, enum.Enum):
+    rarely = "rarely"
+    sometimes = "sometimes"
+    often = "often"
+
+class ScheduleEnum(str, enum.Enum):
+    mostly_home = "mostly_home"
+    mostly_out = "mostly_out"
+    mixed = "mixed"
+
+class PersonalityTypeEnum(str, enum.Enum):
+    introvert = "introvert"
+    extrovert = "extrovert"
+    ambivert = "ambivert"
+
 class DistrictEnum(str, enum.Enum):
     nasimi = "Nasimi"
     yasamal = "Yasamal"
@@ -48,6 +78,17 @@ class User(Base):
     university = Column(String, default=UniversityEnum.other, nullable=False)
     profession = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    budget = Column(DECIMAL, nullable=True)
+    sleep_schedule = Column(String, nullable=True)
+    cleanliness_level = Column(String, nullable=True)
+    religion = Column(String, nullable=True)
+    noise_tolerance = Column(String, nullable=True)
+    smoking_habit = Column(Boolean, default=False)
+    drinks_alcohol = Column(Boolean, default=False)
+    pet_friendly = Column(Boolean, default=False)
+    guest_frequency = Column(String, nullable=True)
+    work_or_study_schedule = Column(String, nullable=True)
+    personality_type = Column(String, nullable=True)
 
 class Listing(Base):
     __tablename__ = "listings"
