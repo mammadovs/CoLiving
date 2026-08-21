@@ -1,0 +1,40 @@
+.card {
+  width: 320px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: white;
+  margin-top: 24px;
+}
+
+.card-image {
+  height: 180px;
+  background-color: #eee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+}
+
+.card-content {
+  padding: 20px;
+}
+
+.card-content h2 {
+  margin-top: 0;
+  margin-bottom: 12px;
+}
+
+.card-content p {
+  margin: 8px 0;
+}
+
+.card-button {
+  margin-top: 12px;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  background-color: #000;
+  color: white;
+  cursor: pointer;
+}
