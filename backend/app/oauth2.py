@@ -5,14 +5,15 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app import models, schemas
+from app.config import settings
 
 # OAuth2 sxemi (login endpoint-inin harada olduğunu göstərir)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 # Təhlükəsizlik üçün gizli açar (Secret Key) və alqoritm
-SECRET_KEY = "super-secret-key-for-student-roommate-project"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60  # Tokenin etibarlılıq müddəti (dəqiqə ilə)
+SECRET_KEY = settings.secret_key
+ALGORITHM = settings.algorithm
+ACCESS_TOKEN_EXPIRE_MINUTES = settings.access_token_expire_minutes
 
 def create_access_token(data: dict):
     to_encode = data.copy()

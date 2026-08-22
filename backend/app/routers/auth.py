@@ -8,7 +8,8 @@ from app.oauth2 import create_access_token
 
 router = APIRouter(tags=["Authentication"])
 
-@router.post("/login", response_model=schemas.Token)
+@router.post("/login", response_model=schemas.Token,  summary="Log in and receive an access token",
+    description="Authenticates a user with email (sent as 'username') and password, and returns a JWT access token to be used in the Authorization header for protected endpoints.")
 def login(user_credentials: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     # İstifadəçini email (username sahəsi kimi gəlir) vasitəsilə axtarırıq
     user = db.query(models.User).filter(models.User.email == user_credentials.username).first()

@@ -11,7 +11,12 @@ router = APIRouter(
     tags=["Users"]
 )
 
-@router.get("/{user_id}/compatibility", response_model=schemas.CompatibilityScoreResponse)
+@router.get(
+    "/{user_id}/compatibility",
+    response_model=schemas.CompatibilityScoreResponse,
+    summary="Get roommate compatibility score",
+    description="Calculates a compatibility percentage between the logged-in user and the specified user, based on shared lifestyle preferences (sleep schedule, cleanliness, religion, budget, and more). Returns an overall score plus a per-field breakdown."
+)
 def get_compatibility_score(
     user_id: int,
     db: Session = Depends(get_db),
@@ -40,7 +45,13 @@ def get_compatibility_score(
         "breakdown": result["breakdown"]
     }
 
-@router.post("/", response_model=schemas.UserResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/",
+    response_model=schemas.UserResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Register a new user",
+    description="Creates a new user account. If is_student is true, the email must belong to a recognized university domain (ending in edu.az). Optional lifestyle/profile fields (budget, sleep schedule, cleanliness, religion, etc.) can be included to enable compatibility scoring."
+)
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     # E-poçt yoxlanışı
     existing_user = db.query(models.User).filter(models.User.email == user.email).first()

@@ -14,7 +14,13 @@ router = APIRouter(
 )
 
 # Elan yaratmaq (unchanged)
-@router.post("/", response_model=schemas.ListingResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/",
+    response_model=schemas.ListingResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Create a new listing",
+    description="Creates a new roommate/apartment listing owned by the logged-in user. Requires authentication."
+)
 def create_listing(
     listing: schemas.ListingCreate,
     db: Session = Depends(get_db),
@@ -44,7 +50,12 @@ def create_listing(
 
 
 # Elanları filtr/axtarışla görmək
-@router.get("/", response_model=List[schemas.ListingResponse])
+@router.get(
+    "/",
+    response_model=List[schemas.ListingResponse],
+    summary="Search and filter listings",
+    description="Returns active listings, optionally filtered by university, district, price range, gender preference, smoking/alcohol allowed, religion preference, wifi, furnished status, and minimum available spots. Supports pagination (max 100 per page)."
+)
 def get_listings(
     skip: int = 0,
     limit: int = Query(default=10, le=100),

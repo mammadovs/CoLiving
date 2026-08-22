@@ -12,7 +12,13 @@ router = APIRouter(
 )
 
 # Mesaj göndərmək
-@router.post("/", response_model=schemas.MessageResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/",
+    response_model=schemas.MessageResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Send a message",
+    description="Sends a message from the logged-in user to another user. Cannot send a message to yourself."
+)
 def send_message(
     message: schemas.MessageCreate,
     db: Session = Depends(get_db),
@@ -43,7 +49,12 @@ def send_message(
 
 
 # İki istifadəçi arasındakı bütün mesajları görmək (conversation history)
-@router.get("/conversation/{other_user_id}", response_model=List[schemas.MessageResponse])
+@router.get(
+    "/conversation/{other_user_id}",
+    response_model=List[schemas.MessageResponse],
+    summary="Get conversation history",
+    description="Returns the full message history between the logged-in user and the specified user, ordered chronologically. Marks any unread incoming messages as read."
+)
 def get_conversation(
     other_user_id: int,
     db: Session = Depends(get_db),
@@ -68,7 +79,12 @@ def get_conversation(
 
 
 # Bütün söhbətlərin siyahısı (kim ilə danışmışam)
-@router.get("/conversations", response_model=List[schemas.ConversationSummary])
+@router.get(
+    "/conversations",
+    response_model=List[schemas.ConversationSummary],
+    summary="List all conversations",
+    description="Returns an inbox-style summary of every conversation the logged-in user is part of, including the other participant, last message preview, timestamp, and unread count."
+)
 def get_conversations(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
