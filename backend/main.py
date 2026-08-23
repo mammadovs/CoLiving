@@ -1,11 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import users, listings, auth
+from fastapi.staticfiles import StaticFiles
+from app.routers import users, listings, auth, messages
 from app.database import engine
 from app import models
-from app.routers import users, listings, auth, messages
-
-models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="CoLiving API",
@@ -28,15 +26,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Bütün routerləri qoşuruq
 app.include_router(users.router)
 app.include_router(listings.router)
 app.include_router(auth.router)
 app.include_router(messages.router)
-app.include_router(users.router)
-app.include_router(listings.router)
-app.include_router(auth.router)
 
 @app.get("/")
 def root():
