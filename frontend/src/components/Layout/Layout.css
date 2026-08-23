@@ -1,10 +1,46 @@
 .layout {
+  width: 100%;
   min-height: 100vh;
-  background-color: #f8f8f8;
+
+  background: #f7fbff;
 }
 
 .layout main {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 40px 24px;
+  width: 100%;
+
+  margin: 0;
+
+  padding: 40px 48px 70px;
+
+  box-sizing: border-box;
+}
+
+
+/* Large screens */
+
+@media (min-width: 1400px) {
+  .layout main {
+    padding-left: 64px;
+    padding-right: 64px;
+  }
+}
+
+
+/* Tablet */
+
+@media (max-width: 1024px) {
+  .layout main {
+    padding: 36px 32px 60px;
+  }
+}
+
+
+/* Mobile */
+
+@media (max-width: 767px) {
+  .layout main {
+    width: 100%;
+
+    padding: 24px 16px 50px;
+  }
 }

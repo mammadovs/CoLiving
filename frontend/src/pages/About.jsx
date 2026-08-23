@@ -1,60 +1,159 @@
+import {
+  Home,
+  Users,
+  ShieldCheck
+} from 'lucide-react'
+
 import './About.css'
 
 function About() {
   return (
     <div className="about-page">
+
       <section className="about-hero">
-        <h1>About CoLiving</h1>
+
+        <span className="about-badge">
+          ABOUT COLIVING
+        </span>
+
+        <h1>
+          Finding a place to live
+          should feel simple.
+        </h1>
 
         <p>
-          CoLiving is a student housing and roommate
-          platform designed to help students find a
-          comfortable place to live and connect with
-          suitable roommates.
+          CoLiving helps students find comfortable
+          places to live and people they can feel
+          at home with.
         </p>
+
       </section>
 
-      <section className="about-section">
-        <h2>Our Mission</h2>
 
-        <p>
-          Our goal is to make finding student accommodation
-          easier, safer, and more convenient.
-        </p>
+      <section className="about-story">
+
+        <div className="about-story-text">
+
+          <span className="section-label">
+            OUR STORY
+          </span>
+
+          <h2>
+            Made for students,
+            built around community.
+          </h2>
+
+          <p>
+            Moving to a new city for university can
+            be exciting, but finding the right place
+            to live is not always easy.
+          </p>
+
+          <p>
+            CoLiving brings accommodation and
+            roommates together in one simple place,
+            so students can spend less time searching
+            and more time settling into their new home.
+          </p>
+
+        </div>
+
+
+        <div className="about-story-card">
+
+          <div className="story-icon">
+            <Home size={30} />
+          </div>
+
+          <h3>
+            Your next home
+          </h3>
+
+          <p>
+            Comfortable spaces, suitable roommates,
+            and a simpler way to find where you belong.
+          </p>
+
+        </div>
+
       </section>
 
+
       <section className="about-section">
-        <h2>Why CoLiving?</h2>
+
+        <div className="about-section-heading">
+
+          <span className="section-label">
+            WHY COLIVING
+          </span>
+
+          <h2>
+            Everything you need,
+            in one place.
+          </h2>
+
+        </div>
+
 
         <div className="about-features">
-          <div className="about-feature">
-            <h3>🏠 Find a Home</h3>
-
-            <p>
-              Discover student-friendly accommodation
-              that fits your needs.
-            </p>
-          </div>
 
           <div className="about-feature">
-            <h3>👥 Find Roommates</h3>
+
+            <div className="about-feature-icon">
+              <Home size={24} />
+            </div>
+
+            <h3>
+              Find a Home
+            </h3>
 
             <p>
-              Connect with students and find suitable
-              roommates.
+              Browse student-friendly places and
+              find a home that works for you.
             </p>
+
           </div>
+
 
           <div className="about-feature">
-            <h3>🔒 Safe & Simple</h3>
+
+            <div className="about-feature-icon">
+              <Users size={24} />
+            </div>
+
+            <h3>
+              Meet Roommates
+            </h3>
 
             <p>
-              A simple platform designed with students
-              in mind.
+              Find people to share a space with
+              and make living away from home easier.
             </p>
+
           </div>
+
+
+          <div className="about-feature">
+
+            <div className="about-feature-icon">
+              <ShieldCheck size={24} />
+            </div>
+
+            <h3>
+              Keep It Simple
+            </h3>
+
+            <p>
+              Everything is designed to make the
+              search for student housing less stressful.
+            </p>
+
+          </div>
+
         </div>
+
       </section>
+
     </div>
   )
 }
