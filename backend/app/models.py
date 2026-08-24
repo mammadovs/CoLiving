@@ -117,6 +117,7 @@ class Listing(Base):
     
     # Əlaqə
     owner = relationship("User")
+    images = relationship("ListingImage", back_populates="listing", cascade="all, delete-orphan")
 
 class ListingImage(Base):
     __tablename__ = "listing_images"
