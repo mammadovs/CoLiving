@@ -11,7 +11,12 @@ router = APIRouter(
     tags=["Users"]
 )
 
-@router.get("/{user_id}/compatibility", response_model=schemas.CompatibilityScoreResponse)
+@router.get(
+    "/{user_id}/compatibility",
+    response_model=schemas.CompatibilityScoreResponse,
+    summary="Get roommate compatibility score",
+    description="Calculates a compatibility percentage between the logged-in user and the specified user, based on shared lifestyle preferences (sleep schedule, cleanliness, religion, budget, and more). Returns an overall score plus a per-field breakdown."
+)
 def get_compatibility_score(
     user_id: int,
     db: Session = Depends(get_db),
@@ -40,7 +45,13 @@ def get_compatibility_score(
         "breakdown": result["breakdown"]
     }
 
-@router.post("/", response_model=schemas.UserResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/",
+    response_model=schemas.UserResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Register a new user",
+    description="Creates a new user account. If is_student is true, the email must belong to a recognized university domain (ending in edu.az). Optional lifestyle/profile fields (budget, sleep schedule, cleanliness, religion, etc.) can be included to enable compatibility scoring."
+)
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     # E-poçt yoxlanışı
     existing_user = db.query(models.User).filter(models.User.email == user.email).first()
@@ -77,3 +88,42 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db.refresh(new_user)
     
     return new_user
+
+# Hər hansı istifadəçinin profilini görmək
+@router.get(
+    "/{user_id}",
+    response_model=schemas.UserResponse,
+    summary="Get a user's profile",
+    description="Returns public profile details for the specified user by ID."
+)
+def get_user(user_id: int, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"User with id {user_id} not found"
+        )
+
+    return user
+
+
+# Öz profilini yeniləmək
+@router.patch(
+    "/me",
+    response_model=schemas.UserResponse,
+    summary="Update own profile",
+    description="Updates the logged-in user's profile fields (budget, lifestyle preferences, etc.). Only fields included in the request body are changed; omitted fields stay as they are."
+)
+def update_my_profile(
+    updates: schemas.UserUpdate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    user_query = db.query(models.User).filter(models.User.id == current_user.id)
+
+    update_data = updates.model_dump(exclude_unset=True)
+    user_query.update(update_data, synchronize_session=False)
+    db.commit()
+
+    return user_query.first()

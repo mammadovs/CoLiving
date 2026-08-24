@@ -102,6 +102,7 @@ class Listing(Base):
     district = Column(String, default=DistrictEnum.other, nullable=False)
     nearest_university = Column(String, default=UniversityEnum.ada, nullable=False)
     available_spots = Column(Integer, nullable=False)
+    phone_number = Column(String, nullable=True)
     
     # Filtrlər
     preferred_gender = Column(String, default=GenderEnum.any, nullable=False)
@@ -116,6 +117,16 @@ class Listing(Base):
     
     # Əlaqə
     owner = relationship("User")
+    images = relationship("ListingImage", back_populates="listing", cascade="all, delete-orphan")
+
+class ListingImage(Base):
+    __tablename__ = "listing_images"
+
+    id = Column(Integer, primary_key=True, index=True)
+    listing_id = Column(Integer, ForeignKey("listings.id"), nullable=False)
+    image_url = Column(String, nullable=False)
+
+    listing = relationship("Listing", back_populates="images")
 
 class Message(Base):
     __tablename__ = "messages"

@@ -1,6 +1,7 @@
 from pydantic import BaseModel, EmailStr, model_validator
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
+from typing import Optional
 from decimal import Decimal
 from app.models import DistrictEnum, GenderEnum, ReligionEnum, UniversityEnum, SleepScheduleEnum, CleanlinessEnum, NoiseToleranceEnum, GuestFrequencyEnum, ScheduleEnum, PersonalityTypeEnum
 
@@ -36,6 +37,21 @@ class UserCreate(BaseModel):
                 )
         return self
 
+class UserUpdate(BaseModel):
+    full_name: Optional[str] = None
+    profession: Optional[str] = None
+    budget: Optional[Decimal] = None
+    sleep_schedule: Optional[SleepScheduleEnum] = None
+    cleanliness_level: Optional[CleanlinessEnum] = None
+    religion: Optional[ReligionEnum] = None
+    noise_tolerance: Optional[NoiseToleranceEnum] = None
+    smoking_habit: Optional[bool] = None
+    drinks_alcohol: Optional[bool] = None
+    pet_friendly: Optional[bool] = None
+    guest_frequency: Optional[GuestFrequencyEnum] = None
+    work_or_study_schedule: Optional[ScheduleEnum] = None
+    personality_type: Optional[PersonalityTypeEnum] = None
+
 class UserResponse(BaseModel):
     id: int
     email: EmailStr
@@ -60,6 +76,12 @@ class UserResponse(BaseModel):
         from_attributes = True
 
 # --- LISTING SCHEMAS ---
+class ListingImageResponse(BaseModel):
+    id: int
+    image_url: str
+
+    class Config:
+        from_attributes = True
 
 class ListingCreate(BaseModel):
     title: str
@@ -69,6 +91,7 @@ class ListingCreate(BaseModel):
     district: DistrictEnum = DistrictEnum.other
     nearest_university: UniversityEnum = UniversityEnum.ada
     available_spots: int
+    phone_number: Optional[str] = None
     
     # Filtrlər
     preferred_gender: GenderEnum = GenderEnum.any
@@ -84,6 +107,7 @@ class ListingCreate(BaseModel):
 class ListingResponse(ListingCreate):
     id: int
     user_id: int # Bu 'owner_id' əvəzinə models.py-da 'user_id' yazmısan
+    images: List[ListingImageResponse] = []
 
     class Config:
         from_attributes = True
