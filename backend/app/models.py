@@ -79,6 +79,7 @@ class User(Base):
     profession = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     budget = Column(DECIMAL, nullable=True)
+    listings = relationship("Listing", cascade="all, delete-orphan")
     sleep_schedule = Column(String, nullable=True)
     cleanliness_level = Column(String, nullable=True)
     religion = Column(String, nullable=True)
@@ -94,7 +95,7 @@ class Listing(Base):
     __tablename__ = "listings"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
     title = Column(String, nullable=False)
     description = Column(String)
     price_per_person = Column(DECIMAL, nullable=False)
@@ -131,8 +132,8 @@ class Message(Base):
     __tablename__ = "messages"
 
     id = Column(Integer, primary_key=True, index=True)
-    sender_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    receiver_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    sender_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    receiver_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     content = Column(String, nullable=False)
     is_read = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
