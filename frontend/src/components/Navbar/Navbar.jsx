@@ -42,9 +42,8 @@ function Navbar() {
 
       {/* Navigation Menu */}
       <div
-        className={`navbar-menu ${
-          isMenuOpen ? 'open' : ''
-        }`}
+        className={`navbar-menu ${isMenuOpen ? 'open' : ''
+          }`}
       >
 
         {/* Navigation Links */}
@@ -70,6 +69,10 @@ function Navbar() {
           >
             About
           </Link>
+
+          <Link to="/messages" onClick={closeMenu}>Messages</Link>
+          <Link to="/profile/me" onClick={closeMenu}>Profile</Link>
+          <Link to="/listings/new" onClick={closeMenu}>List a room</Link>
 
         </div>
 
