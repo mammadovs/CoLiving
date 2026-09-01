@@ -89,6 +89,20 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     
     return new_user
 
+@router.delete(
+    "/me",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Delete own account",
+    description="Permanently deletes the logged-in user's account. All of their listings and sent/received messages are automatically deleted as well (cascade delete). This action cannot be undone."
+)
+def delete_my_account(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    user_query = db.query(models.User).filter(models.User.id == current_user.id)
+    user_query.delete(synchronize_session=False)
+    db.commit()
+
 # Hər hansı istifadəçinin profilini görmək
 @router.get(
     "/{user_id}",
