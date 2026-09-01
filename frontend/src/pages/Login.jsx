@@ -3,25 +3,25 @@ import { useState } from 'react'
 
 import Input from '../components/Input/Input'
 import Button from '../components/Button/Button'
+import { useAuth } from '../context/AuthContext'
 
 import './Login.css'
 
 function Login() {
   const navigate = useNavigate()
+  const { login } = useAuth()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
-
-    // Backend hazır olanda burada login API-si qoşulacaq
-    console.log('Login:', {
-      email,
-      password,
-    })
-
-    navigate('/')
+    try {
+      await login(email, password)
+      navigate('/')
+    } catch (error) {
+      console.error('Login failed:', error)
+    }
   }
 
   return (

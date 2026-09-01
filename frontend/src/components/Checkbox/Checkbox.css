@@ -1,0 +1,18 @@
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) 0;
+    color: var(--color-text);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+}
+
+.checkbox-label input {
+    accent-color: var(--color-primary);
+}
+
+.checkbox-toggle input {
+    width: 18px;
+    height: 18px;
+}
