@@ -1,0 +1,19 @@
+.empty-state {
+    display: grid;
+    justify-items: center;
+    gap: var(--spacing-sm);
+    min-height: 180px;
+    padding: var(--spacing-xl);
+    color: var(--color-text-muted);
+    text-align: center;
+}
+
+.empty-state h2 {
+    margin: 0;
+    color: var(--color-text);
+    font-size: var(--font-size-lg);
+}
+
+.empty-state p {
+    margin: 0;
+}

@@ -1,0 +1,293 @@
+.about-page {
+  width: 100%;
+}
+
+
+/* =========================
+   HERO
+========================= */
+
+.about-hero {
+  max-width: 760px;
+  margin: 0 auto;
+
+  padding: 70px 20px 80px;
+
+  text-align: center;
+}
+
+.about-badge {
+  display: inline-block;
+
+  margin-bottom: 18px;
+
+  padding: 7px 14px;
+
+  border-radius: 999px;
+
+  background: #eaf4ff;
+  color: var(--color-primary);
+
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.about-hero h1 {
+  margin: 0 auto 22px;
+
+  max-width: 700px;
+
+  font-size: 48px;
+  line-height: 1.1;
+  letter-spacing: -1px;
+
+  color: var(--color-text);
+}
+
+.about-hero p {
+  max-width: 600px;
+
+  margin: 0 auto;
+
+  color: var(--color-text-muted);
+
+  font-size: 18px;
+  line-height: 1.7;
+}
+
+
+/* =========================
+   STORY
+========================= */
+
+.about-story {
+  max-width: 1000px;
+
+  margin: 0 auto;
+
+  padding: 60px 0;
+
+  display: grid;
+  grid-template-columns: 1.4fr 0.8fr;
+
+  gap: 70px;
+
+  align-items: center;
+}
+
+.section-label {
+  display: block;
+
+  margin-bottom: 14px;
+
+  color: var(--color-primary);
+
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.about-story-text h2 {
+  margin: 0 0 20px;
+
+  font-size: 34px;
+  line-height: 1.2;
+
+  color: var(--color-text);
+}
+
+.about-story-text p {
+  margin: 0 0 16px;
+
+  color: var(--color-text-muted);
+
+  line-height: 1.7;
+}
+
+
+/* =========================
+   STORY CARD
+========================= */
+
+.about-story-card {
+  padding: 32px;
+
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+
+  background: #f4f9ff;
+
+  box-shadow: var(--shadow-sm);
+}
+
+.story-icon {
+  width: 52px;
+  height: 52px;
+
+  margin-bottom: 22px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 14px;
+
+  background: #dbeeff;
+
+  color: var(--color-primary);
+}
+
+.about-story-card h3 {
+  margin: 0 0 12px;
+
+  font-size: 21px;
+}
+
+.about-story-card p {
+  margin: 0;
+
+  color: var(--color-text-muted);
+
+  line-height: 1.6;
+}
+
+
+/* =========================
+   FEATURES
+========================= */
+
+.about-section {
+  max-width: 1100px;
+
+  margin: 50px auto 80px;
+}
+
+.about-section-heading {
+  margin-bottom: 30px;
+}
+
+.about-section-heading h2 {
+  margin: 0;
+
+  font-size: 34px;
+  line-height: 1.2;
+}
+
+
+/* =========================
+   FEATURE CARDS
+========================= */
+
+.about-features {
+  display: grid;
+
+  grid-template-columns: repeat(3, 1fr);
+
+  gap: 22px;
+}
+
+.about-feature {
+  padding: 28px;
+
+  border: 1px solid var(--color-border);
+
+  border-radius: var(--radius-lg);
+
+  background: var(--color-background);
+
+  box-shadow: var(--shadow-sm);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.about-feature:hover {
+  transform: translateY(-4px);
+
+  box-shadow: var(--shadow-md);
+}
+
+.about-feature-icon {
+  width: 48px;
+  height: 48px;
+
+  margin-bottom: 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 12px;
+
+  background: #eaf4ff;
+
+  color: var(--color-primary);
+}
+
+.about-feature h3 {
+  margin: 0 0 10px;
+
+  font-size: 19px;
+}
+
+.about-feature p {
+  margin: 0;
+
+  color: var(--color-text-muted);
+
+  line-height: 1.6;
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 767px) {
+
+  .about-hero {
+    padding: 45px 16px 55px;
+  }
+
+  .about-hero h1 {
+    font-size: 36px;
+  }
+
+  .about-hero p {
+    font-size: 16px;
+  }
+
+  .about-story {
+    grid-template-columns: 1fr;
+
+    gap: 35px;
+
+    padding: 40px 16px;
+  }
+
+  .about-story-text h2 {
+    font-size: 30px;
+  }
+
+  .about-section {
+    margin: 35px auto 55px;
+
+    padding: 0 16px;
+  }
+
+  .about-section-heading h2 {
+    font-size: 30px;
+  }
+
+  .about-features {
+    grid-template-columns: 1fr;
+
+    gap: 16px;
+  }
+
+  .about-feature {
+    padding: 24px;
+  }
+}

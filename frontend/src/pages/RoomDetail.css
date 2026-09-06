@@ -1,0 +1,123 @@
+.room-detail-page {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.room-detail-back {
+    color: var(--color-primary);
+    text-decoration: none;
+}
+
+.room-detail-gallery {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-md);
+    margin: var(--spacing-lg) 0;
+}
+
+.room-detail-gallery img {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+}
+
+.room-detail-main {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(240px, .7fr);
+    gap: var(--spacing-xl);
+}
+
+.room-detail-main h1 {
+    margin: 0 0 var(--spacing-md);
+    font-size: var(--font-size-xl);
+}
+
+.room-detail-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-lg);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+}
+
+.room-detail-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.room-detail-main p {
+    margin: var(--spacing-xl) 0;
+    line-height: 1.7;
+}
+
+.room-detail-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+}
+
+.room-detail-aside {
+    display: grid;
+    align-content: start;
+    gap: var(--spacing-lg);
+    padding: var(--spacing-lg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+}
+
+.room-detail-aside>strong {
+    color: var(--color-primary);
+    font-size: var(--font-size-lg);
+}
+
+.room-detail-aside dl {
+    display: grid;
+    gap: var(--spacing-sm);
+    margin: 0;
+}
+
+.room-detail-aside dl div {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--spacing-md);
+    font-size: var(--font-size-sm);
+}
+
+.room-detail-aside dt {
+    color: var(--color-text-muted);
+}
+
+.room-detail-aside dd {
+    margin: 0;
+    font-weight: 600;
+}
+
+.room-detail-aside .button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+}
+
+@media (max-width: 768px) {
+    .room-detail-main {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .room-detail-gallery {
+        grid-template-columns: 1fr;
+    }
+
+    .room-detail-main h1 {
+        font-size: var(--font-size-lg);
+    }
+
+    .room-detail-aside {
+        padding: var(--spacing-md);
+    }
+}
