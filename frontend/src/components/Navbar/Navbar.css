@@ -1,3 +1,4 @@
+/* ── Base ── */
 .navbar {
   width: 100%;
   padding: var(--spacing-md) var(--spacing-xl);
@@ -8,12 +9,13 @@
   background-color: var(--color-background);
   box-sizing: border-box;
   position: relative;
-  z-index: 100;
+  z-index: 200;
 }
 
 .navbar-logo {
   font-size: var(--font-size-lg);
   font-weight: 700;
+  flex-shrink: 0;
 }
 
 .navbar-logo a {
@@ -37,24 +39,53 @@
   color: var(--color-text);
   font-size: var(--font-size-sm);
   white-space: nowrap;
+  display: flex;
+  align-items: center;
 }
 
 .navbar-links a:hover {
   color: var(--color-primary);
 }
 
+/* Mobile-only links hidden on desktop */
+.nav-link-mobile-only {
+  display: none;
+}
+
 .navbar-actions {
   display: flex;
+  align-items: center;
   gap: var(--spacing-sm);
 }
 
+/* Desktop action links (Messages, Profile etc) */
+.nav-action-link {
+  text-decoration: none;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+  padding: 0 var(--spacing-xs);
+  transition: color 0.2s;
+}
+
+.nav-action-link:hover {
+  color: var(--color-primary);
+}
+
+/* Auth buttons */
 .login-button,
-.signup-button {
+.signup-button,
+.logout-button {
   padding: var(--spacing-sm) var(--spacing-md);
   border-radius: var(--radius-md);
   cursor: pointer;
   font-size: var(--font-size-sm);
   white-space: nowrap;
+  min-height: var(--touch-target);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
 }
 
 .login-button {
@@ -73,36 +104,59 @@
   background-color: var(--color-primary-hover);
 }
 
-/* Hamburger button */
+.logout-button {
+  border: 1px solid #fca5a5;
+  background: none;
+  color: #ef4444;
+  font-size: var(--font-size-sm);
+}
 
+.logout-button:hover {
+  background: #fef2f2;
+}
+
+/* ── Hamburger ── */
 .menu-button {
   display: none;
-  width: 40px;
-  height: 40px;
-  padding: 8px;
+  width: 44px;
+  height: 44px;
+  padding: 10px;
   border: none;
   background: transparent;
   cursor: pointer;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
 }
 
 .menu-button span {
   display: block;
-  width: 24px;
+  width: 22px;
   height: 2px;
-  margin: 5px auto;
   background-color: var(--color-text);
-  transition: 0.2s ease;
+  border-radius: 2px;
+  transition: transform 0.25s ease, opacity 0.25s ease;
 }
 
-/* Mobile */
+/* Animated X when open */
+.menu-button span.open:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.menu-button span.open:nth-child(2) { opacity: 0; }
+.menu-button span.open:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-@media (max-width: 767px) {
+/* ── Mobile ≤ 768px ── */
+@media (max-width: 768px) {
   .navbar {
     padding: var(--spacing-md);
   }
 
   .menu-button {
-    display: block;
+    display: flex;
+  }
+
+  /* Desktop action links hidden on mobile (shown inside navbar-links instead) */
+  .nav-action-link {
+    display: none;
   }
 
   .navbar-menu {
@@ -131,8 +185,14 @@
   }
 
   .navbar-links a {
-    padding: var(--spacing-md) 0;
+    padding: 0 0;
+    min-height: var(--touch-target);
     border-bottom: 1px solid var(--color-border);
+  }
+
+  /* Show mobile-only links on small screens */
+  .nav-link-mobile-only {
+    display: flex;
   }
 
   .navbar-actions {
@@ -142,7 +202,9 @@
   }
 
   .login-button,
-  .signup-button {
+  .signup-button,
+  .logout-button {
     width: 100%;
+    justify-content: center;
   }
 }

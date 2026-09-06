@@ -45,4 +45,14 @@
   /* Shadows */
   --shadow-sm: 0 2px 8px rgba(74, 144, 226, 0.08);
   --shadow-md: 0 8px 24px rgba(74, 144, 226, 0.12);
+
+  /* Breakpoints (use in JS via getComputedStyle if needed; use in CSS as named reference)
+     --bp-sm : 480px   (large phones, landscape)
+     --bp-md : 768px   (tablets)
+     --bp-lg : 1024px  (small laptops)
+     --bp-xl : 1440px  (wide screens)
+  */
+
+  /* Touch targets — all interactive elements should be at least this tall/wide */
+  --touch-target: 44px;
 }

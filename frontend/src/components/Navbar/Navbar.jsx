@@ -1,17 +1,20 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
-
+import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../../context/AuthContext'
 import './Navbar.css'
 
 function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { user, logout } = useAuth()
+  const navigate = useNavigate()
 
-  const closeMenu = () => {
-    setIsMenuOpen(false)
-  }
+  const closeMenu = () => setIsMenuOpen(false)
+  const toggleMenu = () => setIsMenuOpen((prev) => !prev)
 
-  const toggleMenu = () => {
-    setIsMenuOpen((previous) => !previous)
+  const handleLogout = () => {
+    logout()
+    closeMenu()
+    navigate('/')
   }
 
   return (
@@ -19,83 +22,86 @@ function Navbar() {
 
       {/* Logo */}
       <div className="navbar-logo">
-        <Link
-          to="/"
-          onClick={closeMenu}
-        >
-          CoLiving
-        </Link>
+        <Link to="/" onClick={closeMenu}>CoLiving</Link>
       </div>
 
-      {/* Mobile Menu Button */}
+      {/* Mobile hamburger */}
       <button
         type="button"
         className="menu-button"
         onClick={toggleMenu}
-        aria-label="Toggle navigation menu"
+        aria-label="Naviqasiya menyusunu aç/bağla"
         aria-expanded={isMenuOpen}
       >
-        <span></span>
-        <span></span>
-        <span></span>
+        <span className={isMenuOpen ? 'open' : ''}></span>
+        <span className={isMenuOpen ? 'open' : ''}></span>
+        <span className={isMenuOpen ? 'open' : ''}></span>
       </button>
 
-      {/* Navigation Menu */}
-      <div
-        className={`navbar-menu ${
-          isMenuOpen ? 'open' : ''
-        }`}
-      >
+      {/* Desktop + Mobile menu */}
+      <div className={`navbar-menu ${isMenuOpen ? 'open' : ''}`}>
 
-        {/* Navigation Links */}
+        {/* Nav links */}
         <div className="navbar-links">
+          <Link to="/" onClick={closeMenu}>Ana Səhifə</Link>
+          <Link to="/listings" onClick={closeMenu}>Elanlar</Link>
+          <Link to="/about" onClick={closeMenu}>Haqqında</Link>
 
-          <Link
-            to="/"
-            onClick={closeMenu}
-          >
-            Home
-          </Link>
-
-          <Link
-            to="/rooms"
-            onClick={closeMenu}
-          >
-            Find a Room
-          </Link>
-
-          <Link
-            to="/about"
-            onClick={closeMenu}
-          >
-            About
-          </Link>
-
+          {/* Auth-dependent links — always in nav-links on mobile for easy access */}
+          {user && (
+            <>
+              <Link to="/messages" onClick={closeMenu} className="nav-link-mobile-only">
+                Mesajlar
+              </Link>
+              {user.is_student ? (
+                <Link to="/listings" onClick={closeMenu} className="nav-link-mobile-only">
+                  Elan Axtar
+                </Link>
+              ) : (
+                <Link to="/my-listings" onClick={closeMenu} className="nav-link-mobile-only">
+                  Elanlarım
+                </Link>
+              )}
+              <Link to="/profile" onClick={closeMenu} className="nav-link-mobile-only">
+                Profil
+              </Link>
+            </>
+          )}
         </div>
 
-        {/* Authentication Buttons */}
+        {/* Actions */}
         <div className="navbar-actions">
-
-          <Link
-            to="/login"
-            className="login-button"
-            onClick={closeMenu}
-          >
-            Log In
-          </Link>
-
-          <Link
-            to="/signup"
-            className="signup-button"
-            onClick={closeMenu}
-          >
-            Sign Up
-          </Link>
-
+          {user ? (
+            <>
+              {/* Desktop-only action links */}
+              <Link to="/messages" onClick={closeMenu} className="nav-action-link">
+                💬 Mesajlar
+              </Link>
+              {user.is_student ? null : (
+                <Link to="/my-listings" onClick={closeMenu} className="nav-action-link">
+                  🏠 Elanlarım
+                </Link>
+              )}
+              <Link to="/profile" onClick={closeMenu} className="nav-action-link">
+                👤 {user.full_name ? user.full_name.split(' ')[0] : 'Profil'}
+              </Link>
+              <button className="logout-button" onClick={handleLogout}>
+                Çıxış
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" className="login-button" onClick={closeMenu}>
+                Daxil ol
+              </Link>
+              <Link to="/signup" className="signup-button" onClick={closeMenu}>
+                Qeydiyyat
+              </Link>
+            </>
+          )}
         </div>
 
       </div>
-
     </nav>
   )
 }
