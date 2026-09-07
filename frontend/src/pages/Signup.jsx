@@ -1,35 +1,73 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
+import { useAuth } from '../context/AuthContext'
 
 import Input from '../components/Input/Input'
 import Button from '../components/Button/Button'
 
 import './Signup.css'
 
+const UNIVERSITIES = [
+  'ADA University',
+  'BDU',
+  'ADNSU',
+  'ATU',
+  'Khazar University',
+  'Other'
+];
+
 function Signup() {
   const navigate = useNavigate()
+  const { register } = useAuth()
 
-  const [name, setName] = useState('')
+  const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  
+  const [isStudent, setIsStudent] = useState(true)
+  const [university, setUniversity] = useState(UNIVERSITIES[0])
+  const [profession, setProfession] = useState('')
 
-  const handleSubmit = (event) => {
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+
+  const handleSubmit = async (event) => {
     event.preventDefault()
+    setError('')
+    setSuccess('')
 
     if (password !== confirmPassword) {
-      alert('Passwords do not match.')
+      setError('Şifrələr uyğun gəlmir.')
       return
     }
 
-    // Backend hazır olanda burada registration API-si qoşulacaq
-    console.log('Sign Up:', {
-      name,
+    const payload = {
       email,
       password,
-    })
+      full_name: fullName,
+      is_student: isStudent,
+      ...(isStudent ? { university } : { profession: profession || undefined })
+    }
 
-    navigate('/')
+    setIsLoading(true)
+    try {
+      await register(payload)
+      setSuccess('Qeydiyyat uğurla tamamlandı! Giriş səhifəsinə yönləndirilirsiniz...')
+      setTimeout(() => {
+        navigate('/login')
+      }, 2000)
+    } catch (err) {
+      if (err.status === 400) {
+        setError('Bu email artıq qeydiyyatdan keçib')
+      } else {
+        // Backend validation or 422 message
+        setError(err.message || 'Xəta baş verdi. Yenidən cəhd edin.')
+      }
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -48,6 +86,9 @@ function Signup() {
           </p>
         </div>
 
+        {error && <div className="signup-error" style={{ color: 'red', marginBottom: '1rem', textAlign: 'center' }}>{error}</div>}
+        {success && <div className="signup-success" style={{ color: 'green', marginBottom: '1rem', textAlign: 'center' }}>{success}</div>}
+
         <form
           className="signup-form"
           onSubmit={handleSubmit}
@@ -57,17 +98,78 @@ function Signup() {
             label="Full Name"
             type="text"
             placeholder="Enter your full name"
-            value={name}
-            onChange={(event) => setName(event.target.value)}
+            value={fullName}
+            onChange={(event) => setFullName(event.target.value)}
+            required
           />
 
-          <Input
-            label="Email"
-            type="email"
-            placeholder="Enter your email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-          />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
+            <label style={{ fontSize: '0.875rem', fontWeight: '500' }}>Email</label>
+            <input
+              type="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              required
+              style={{
+                padding: '0.75rem',
+                border: '1px solid #ddd',
+                borderRadius: '8px',
+                fontSize: '1rem',
+                outline: 'none'
+              }}
+            />
+            {isStudent && <span style={{ fontSize: '0.75rem', color: '#666' }}>Email .edu.az ilə bitməlidir</span>}
+          </div>
+
+          <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+              <input 
+                type="radio" 
+                checked={isStudent} 
+                onChange={() => setIsStudent(true)} 
+              />
+              Mən tələbəyəm
+            </label>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+              <input 
+                type="radio" 
+                checked={!isStudent} 
+                onChange={() => setIsStudent(false)} 
+              />
+              Mən ev sahibiyəm
+            </label>
+          </div>
+
+          {isStudent ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
+              <label style={{ fontSize: '0.875rem', fontWeight: '500' }}>University</label>
+              <select 
+                value={university}
+                onChange={(e) => setUniversity(e.target.value)}
+                style={{
+                  padding: '0.75rem',
+                  border: '1px solid #ddd',
+                  borderRadius: '8px',
+                  fontSize: '1rem',
+                  outline: 'none',
+                  backgroundColor: '#fff'
+                }}
+              >
+                {UNIVERSITIES.map(uni => (
+                  <option key={uni} value={uni}>{uni}</option>
+                ))}
+              </select>
+            </div>
+          ) : (
+            <Input
+              label="Profession (Optional)"
+              type="text"
+              placeholder="Enter your profession"
+              value={profession}
+              onChange={(event) => setProfession(event.target.value)}
+            />
+          )}
 
           <Input
             label="Password"
@@ -75,6 +177,7 @@ function Signup() {
             placeholder="Create a password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
+            required
           />
 
           <Input
@@ -83,18 +186,18 @@ function Signup() {
             placeholder="Confirm your password"
             value={confirmPassword}
             onChange={(event) => setConfirmPassword(event.target.value)}
+            required
           />
 
           <label className="signup-terms">
             <input type="checkbox" required />
-
             <span>
               I agree to the Terms of Service and Privacy Policy.
             </span>
           </label>
 
-          <Button type="submit">
-            Create Account
+          <Button type="submit" disabled={isLoading}>
+            {isLoading ? 'Loading...' : 'Create Account'}
           </Button>
 
         </form>

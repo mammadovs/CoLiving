@@ -1,25 +1,104 @@
 .input-container {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
-  margin: var(--spacing-md) 0;
+  gap: var(--spacing-sm, 8px);
+  margin: var(--spacing-md, 16px) 0;
+  width: 100%;
 }
 
+.input-container .input-label,
 .input-container label {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-sm, 14px);
   font-weight: 600;
+  color: var(--color-text, #1F2937);
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
-.input-container input {
-  padding: var(--spacing-sm) var(--spacing-md);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-md);
+.input-required-star {
+  color: var(--color-error, #DC2626);
+  font-weight: 700;
+}
+
+/* Base input & textarea styling */
+.input-container input,
+.input-container textarea,
+.input-container select,
+.input-container .custom-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 14px;
+  border: 1.5px solid var(--color-border, #D9EAF7);
+  border-radius: var(--radius-md, 8px);
+  font-size: var(--font-size-md, 16px);
+  font-family: inherit;
+  line-height: 1.5;
   outline: none;
-  background: var(--color-background);
-  color: var(--color-text);
+  
+  /* High contrast: pure white surface with dark, crisp text */
+  background-color: var(--color-surface, #FFFFFF);
+  color: var(--color-text, #1F2937) !important;
+  caret-color: var(--color-text, #1F2937);
+
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.input-container input:focus {
-  border-color: var(--color-primary);
+/* Specific types */
+.input-container input[type="text"],
+.input-container input[type="number"],
+.input-container input[type="email"],
+.input-container input[type="password"],
+.input-container input[type="tel"],
+.input-container input[type="url"],
+.input-container textarea {
+  background-color: #FFFFFF;
+  color: #1F2937 !important;
+}
+
+/* Minimum touch target for inputs */
+.input-container input:not([type="checkbox"]):not([type="radio"]) {
+  min-height: var(--touch-target, 44px);
+}
+
+.input-container textarea,
+.input-container .custom-textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+/* Focus styles */
+.input-container input:focus,
+.input-container textarea:focus,
+.input-container select:focus,
+.input-container .custom-input:focus {
+  border-color: var(--color-primary, #4A90E2);
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.18);
+  color: var(--color-text, #1F2937) !important;
+  background-color: #FFFFFF;
+}
+
+/* Placeholder styling — visible muted grey with 100% opacity */
+.input-container input::placeholder,
+.input-container textarea::placeholder,
+.input-container .custom-input::placeholder {
+  color: var(--color-text-muted, #6B7280) !important;
+  opacity: 1;
+  font-weight: 400;
+}
+
+/* Disabled & Readonly states */
+.input-container input:disabled,
+.input-container textarea:disabled {
+  background-color: #F3F4F6;
+  color: #9CA3AF !important;
+  cursor: not-allowed;
+  border-color: #E5E7EB;
+}
+
+/* Error message */
+.input-error-msg {
+  font-size: var(--font-size-sm, 13px);
+  color: var(--color-error, #DC2626);
+  margin-top: 2px;
 }

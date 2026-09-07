@@ -225,26 +225,43 @@
 }
 
 /* =========================
-   MOBILE
+   MOBILE  ≤ 768px
 
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   .login-page {
-    min-height: calc(100vh - 70px);
-
-    padding: 32px 16px;
+    min-height: unset;
+    padding: 1.5rem 1rem;
+    align-items: flex-start;
   }
 
   .login-card {
-    padding: 32px 24px;
-
+    padding: 1.75rem 1.25rem;
     border-radius: 16px;
   }
 
   .login-header h1 {
-    font-size: 28px;
+    font-size: 1.75rem;
   }
 
   .login-options {
     align-items: flex-start;
+  }
+
+  .login-form .button {
+    min-height: 44px;
+  }
+}
+
+/* =========================
+   PHONES  ≤ 480px
+========================= */
+
+@media (max-width: 480px) {
+  .login-card {
+    padding: 1.25rem 1rem;
+  }
+
+  .login-header h1 {
+    font-size: 1.5rem;
   }
 }

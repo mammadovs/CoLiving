@@ -1,0 +1,307 @@
+/* Full-height chat layout */
+.conv-page {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 70px); /* Navbar-ın hündürlüyünü çıxart */
+  max-width: 800px;
+  margin: 0 auto;
+  background: #f9fafb;
+}
+
+/* ---- Top bar ---- */
+.conv-topbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1.25rem;
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.conv-back-btn {
+  background: none;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  border-radius: 6px;
+  transition: 0.15s;
+}
+.conv-back-btn:hover { background: #f3f4f6; color: #111827; }
+
+.conv-topbar-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3b82f6, #6366f1);
+  color: white;
+  font-weight: 700;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.conv-topbar-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.conv-topbar-name {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #111827;
+}
+
+.conv-topbar-status {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  display: inline-block;
+}
+
+/* ---- Messages area ---- */
+.conv-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.conv-empty {
+  text-align: center;
+  color: #9ca3af;
+  font-size: 0.95rem;
+  margin: auto;
+  padding: 2rem;
+}
+
+/* Date divider */
+.conv-date-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 1.25rem 0 0.75rem;
+}
+
+.conv-date-divider span {
+  background: #e5e7eb;
+  color: #6b7280;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 3px 12px;
+  border-radius: 20px;
+}
+
+/* Message rows */
+.conv-msg-row {
+  display: flex;
+  margin-bottom: 0.4rem;
+}
+
+.conv-msg-row.own   { justify-content: flex-end; }
+.conv-msg-row.other { justify-content: flex-start; }
+
+/* Bubbles */
+.conv-bubble {
+  max-width: 70%;
+  padding: 0.65rem 0.95rem;
+  border-radius: 18px;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.conv-bubble p {
+  margin: 0 0 0.25rem;
+  font-size: 0.975rem;
+}
+
+.bubble-own {
+  background: #3b82f6;
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+
+.bubble-other {
+  background: white;
+  color: #1f2937;
+  border-bottom-left-radius: 4px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+}
+
+/* Optimistic (sending…) */
+.bubble-optimistic {
+  opacity: 0.7;
+}
+
+.conv-ts {
+  font-size: 0.68rem;
+  display: block;
+  text-align: right;
+}
+
+.bubble-own .conv-ts   { color: rgba(255,255,255,0.7); }
+.bubble-other .conv-ts { color: #9ca3af; }
+
+/* ---- Input bar ---- */
+.conv-input-bar {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+  padding: 0.85rem 1.25rem;
+  background: white;
+  border-top: 1px solid #e5e7eb;
+  flex-shrink: 0;
+}
+
+.conv-input {
+  flex: 1;
+  resize: none;
+  border: 1px solid #d1d5db;
+  border-radius: 22px;
+  padding: 0.7rem 1.1rem;
+  font-size: 0.975rem;
+  font-family: inherit;
+  line-height: 1.5;
+  max-height: 120px;
+  outline: none;
+  transition: border-color 0.2s;
+  overflow-y: auto;
+}
+
+.conv-input:focus { border-color: #3b82f6; }
+
+.conv-send-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.conv-send-btn:hover:not(:disabled) {
+  background: #2563eb;
+  transform: scale(1.05);
+}
+
+.conv-send-btn:disabled {
+  background: #d1d5db;
+  cursor: not-allowed;
+}
+
+/* ---- Skeletons ---- */
+.skeleton-name {
+  width: 140px;
+  height: 18px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 6px;
+}
+
+.conv-msg-skeleton {
+  height: 44px;
+  width: 55%;
+  border-radius: 18px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  margin-bottom: 0.75rem;
+}
+
+.conv-msg-skeleton.left  { align-self: flex-start; }
+.conv-msg-skeleton.right { align-self: flex-end; width: 45%; }
+
+/* Error */
+.conv-error-box {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #374151;
+}
+
+.conv-error-box button {
+  margin-top: 1rem;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@media (max-width: 768px) {
+  .conv-page {
+    height: 100dvh; /* dynamic viewport height — accounts for mobile browser chrome */
+  }
+
+  /* Fixed input bar at bottom on mobile */
+  .conv-input-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    padding: 0.65rem 1rem;
+    padding-bottom: env(safe-area-inset-bottom, 0.65rem);
+  }
+
+  /* Add padding so messages don't hide behind fixed input */
+  .conv-messages {
+    padding-bottom: 80px;
+  }
+
+  .conv-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .conv-bubble {
+    max-width: 85%;
+  }
+}
+
+@media (max-width: 480px) {
+  .conv-bubble {
+    max-width: 90%;
+    font-size: 0.9rem;
+  }
+
+  .conv-input {
+    font-size: 0.9rem;
+  }
+
+  .conv-send-btn {
+    width: 40px;
+    height: 40px;
+  }
+}
+
