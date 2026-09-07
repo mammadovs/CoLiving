@@ -79,7 +79,7 @@ class User(Base):
     profession = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     budget = Column(DECIMAL, nullable=True)
-    listings = relationship("Listing", cascade="all, delete-orphan")
+    listings = relationship("Listing", back_populates="owner", cascade="all, delete-orphan")
     sleep_schedule = Column(String, nullable=True)
     cleanliness_level = Column(String, nullable=True)
     religion = Column(String, nullable=True)
