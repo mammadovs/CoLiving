@@ -117,9 +117,9 @@ class Listing(Base):
     is_active = Column(Boolean, default=True)
     
     # Əlaqə
-    owner = relationship("User", back_populates="listings")
+    owner = relationship("User")
     images = relationship("ListingImage", back_populates="listing", cascade="all, delete-orphan")
-    
+
 class ListingImage(Base):
     __tablename__ = "listing_images"
 

@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
-import { ToastProvider } from './context/ToastContext'
 
 import Navbar from './components/Navbar/Navbar'
 import Layout from './components/Layout/Layout'
@@ -10,7 +9,6 @@ import Rooms from './pages/Rooms'
 import About from './pages/About'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
-import Onboarding from './pages/Onboarding'
 import NotFound from './pages/NotFound'
 import RoomDetail from './pages/RoomDetail'
 import Profile from './pages/Profile'
@@ -21,7 +19,6 @@ import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute'
 
 function App() {
   return (
-    <ToastProvider>
     <AuthProvider>
       <BrowserRouter>
         <Navbar />
@@ -40,13 +37,11 @@ function App() {
             <Route path="/about" element={<About />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
-             <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />. 
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Layout>
       </BrowserRouter>
     </AuthProvider>
-    </ToastProvider>
   )
 }
 

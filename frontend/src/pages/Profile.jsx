@@ -13,39 +13,12 @@ import './Profile.css'
 
 const fields = ['sleep_schedule', 'cleanliness_level', 'religion', 'noise_tolerance', 'smoking_habit', 'drinks_alcohol', 'guest_frequency', 'work_or_study_schedule', 'personality_type']
 
-// Enum options matching the backend exactly (see app/models.py)
-const ENUM_OPTIONS = {
-    sleep_schedule: ['early_bird', 'night_owl', 'flexible'],
-    cleanliness_level: ['very_tidy', 'average', 'relaxed'],
-    religion: ['muslim', 'christian', 'secular', 'other'],
-    noise_tolerance: ['quiet', 'moderate', 'loud_ok'],
-    guest_frequency: ['rarely', 'sometimes', 'often'],
-    work_or_study_schedule: ['mostly_home', 'mostly_out', 'mixed'],
-    personality_type: ['introvert', 'extrovert', 'ambivert'],
-}
-
-const BOOLEAN_FIELDS = ['smoking_habit', 'drinks_alcohol']
-
-function formatLabel(value) {
-    return value.replaceAll('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase())
-}
-
-function toBreakdownArray(breakdownObject) {
-    if (!breakdownObject) return []
-    return Object.entries(breakdownObject).map(([key, value]) => ({
-        label: formatLabel(key),
-        score: value,
-    }))
-}
-
 function Profile() {
     const { userId = 'me' } = useParams()
     const [profile, setProfile] = useState(null)
     const [isEditing, setIsEditing] = useState(false)
     const [status, setStatus] = useState('loading')
     const [errorMessage, setErrorMessage] = useState('')
-    const [compatibility, setCompatibility] = useState(null)
-    const [compatibilityLoading, setCompatibilityLoading] = useState(false)
     const targetUserId = userId === 'me' ? JSON.parse(localStorage.getItem('user') || '{}').id : userId
     const isOwnProfile = userId === 'me'
 
@@ -75,20 +48,6 @@ function Profile() {
         loadProfile()
     }, [loadProfile])
 
-    // Fetch the real compatibility score when viewing someone else's profile
-    useEffect(() => {
-        if (isOwnProfile || !targetUserId || status !== 'success') return
-
-        let cancelled = false
-        setCompatibilityLoading(true)
-        usersAPI.getCompatibility(targetUserId)
-            .then((result) => { if (!cancelled) setCompatibility(result) })
-            .catch(() => { if (!cancelled) setCompatibility(null) })
-            .finally(() => { if (!cancelled) setCompatibilityLoading(false) })
-
-        return () => { cancelled = true }
-    }, [isOwnProfile, targetUserId, status])
-
     const update = (key, value) => setProfile((current) => ({ ...current, [key]: value }))
 
     if (status === 'loading') return <Spinner />
@@ -109,63 +68,8 @@ function Profile() {
 
     return (
         <section className="profile-page">
-            <div className="profile-heading">
-                <Avatar name={profile.full_name} size="lg" />
-                <div><h1>{profile.full_name}</h1><p>{profile.email}</p></div>
-                {isOwnProfile && <Button variant="secondary" onClick={() => setIsEditing((current) => !current)}>{isEditing ? 'Cancel' : 'Edit profile'}</Button>}
-            </div>
-
-            {isEditing && isOwnProfile ? (
-                <form className="profile-form" onSubmit={saveProfile}>
-                    <Input label="Full name" value={profile.full_name || ''} onChange={(event) => update('full_name', event.target.value)} />
-                    <Input label="Budget (AZN)" type="number" value={profile.budget || ''} onChange={(event) => update('budget', event.target.value)} />
-
-                    {Object.entries(ENUM_OPTIONS).map(([field, options]) => (
-                        <label key={field} className="profile-select-field">
-                            <span>{formatLabel(field)}</span>
-                            <select
-                                value={profile[field] || ''}
-                                onChange={(event) => update(field, event.target.value || null)}
-                            >
-                                <option value="">Not specified</option>
-                                {options.map((opt) => (
-                                    <option key={opt} value={opt}>{formatLabel(opt)}</option>
-                                ))}
-                            </select>
-                        </label>
-                    ))}
-
-                    {BOOLEAN_FIELDS.map((field) => (
-                        <Checkbox
-                            key={field}
-                            label={formatLabel(field)}
-                            checked={Boolean(profile[field])}
-                            onChange={(event) => update(field, event.target.checked)}
-                        />
-                    ))}
-
-                    <Checkbox label="Pet friendly" checked={Boolean(profile.pet_friendly)} onChange={(event) => update('pet_friendly', event.target.checked)} />
-
-                    <Button type="submit">Save changes</Button>
-                </form>
-            ) : (
-                <div className="profile-content">
-                    <section className="profile-card">
-                        <h2>Lifestyle profile</h2>
-                        <dl className="profile-details">
-                            {fields.map((field) => <div key={field}><dt>{field.replaceAll('_', ' ')}</dt><dd>{profile[field] ?? 'Not specified'}</dd></div>)}
-                            <div><dt>budget</dt><dd>{profile.budget ?? 'Not specified'}{profile.budget ? ' AZN' : ''}</dd></div>
-                            <div><dt>pet friendly</dt><dd>{profile.pet_friendly ? 'Yes' : 'No'}</dd></div>
-                        </dl>
-                    </section>
-                    {!isOwnProfile && !compatibilityLoading && compatibility && (
-                        <Compatibility
-                            score={compatibility.compatibility_score}
-                            breakdown={toBreakdownArray(compatibility.breakdown)}
-                        />
-                    )}
-                </div>
-            )}
+            <div className="profile-heading"><Avatar name={profile.full_name} size="lg" /><div><h1>{profile.full_name}</h1><p>{profile.email}</p></div>{isOwnProfile && <Button variant="secondary" onClick={() => setIsEditing((current) => !current)}>{isEditing ? 'Cancel' : 'Edit profile'}</Button>}</div>
+            {isEditing && isOwnProfile ? <form className="profile-form" onSubmit={saveProfile}><Input label="Full name" value={profile.full_name || ''} onChange={(event) => update('full_name', event.target.value)} /><Input label="Budget (AZN)" type="number" value={profile.budget || ''} onChange={(event) => update('budget', event.target.value)} /><Checkbox label="Pet friendly" checked={Boolean(profile.pet_friendly)} onChange={(event) => update('pet_friendly', event.target.checked)} /><Button type="submit">Save changes</Button></form> : <div className="profile-content"><section className="profile-card"><h2>Lifestyle profile</h2><dl className="profile-details">{fields.map((field) => <div key={field}><dt>{field.replaceAll('_', ' ')}</dt><dd>{profile[field] ?? 'Not specified'}</dd></div>)}<div><dt>budget</dt><dd>{profile.budget ?? 'Not specified'}{profile.budget ? ' AZN' : ''}</dd></div><div><dt>pet friendly</dt><dd>{profile.pet_friendly ? 'Yes' : 'No'}</dd></div></dl></section>{!isOwnProfile && <Compatibility breakdown={[]} />}</div>}
         </section>
     )
 }

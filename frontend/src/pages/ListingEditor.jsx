@@ -1,6 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Upload } from 'lucide-react'
 import Input from '../components/Input/Input'
 import Select from '../components/Select/Select'
 import Textarea from '../components/Textarea/Textarea'
@@ -16,19 +15,16 @@ const emptyListing = {
     title: '', description: '', price_per_person: '', address: '', district: '',
     nearest_university: '', available_spots: '', phone_number: '', preferred_gender: 'any',
     smoking_allowed: false, alcohol_allowed: false, religion_preference: 'secular',
-    has_wifi: true, is_furnished: true, images: [],
+    has_wifi: true, is_furnished: true,
 }
 
 function ListingEditor() {
     const { id } = useParams()
     const navigate = useNavigate()
-    const fileInputRef = useRef(null)
     const [form, setForm] = useState(emptyListing)
     const [status, setStatus] = useState(id ? 'loading' : 'success')
     const [errorMessage, setErrorMessage] = useState('')
     const [saving, setSaving] = useState(false)
-    const [uploading, setUploading] = useState(false)
-    const [uploadError, setUploadError] = useState('')
 
     const loadListing = useCallback(async () => {
         if (!id) return
@@ -68,38 +64,14 @@ function ListingEditor() {
                 price_per_person: Number(form.price_per_person),
                 available_spots: Number(form.available_spots),
             }
-            delete payload.images
-
-            if (id) {
-                await listingsAPI.update(id, payload)
-                navigate('/rooms')
-            } else {
-                // New listing: go to its edit page next, since photo upload needs a real listing_id
-                const created = await listingsAPI.create(payload)
-                navigate(`/listings/${created.id}/edit`, { replace: true })
-            }
+            if (id) await listingsAPI.update(id, payload)
+            else await listingsAPI.create(payload)
+            navigate('/rooms')
         } catch (error) {
             setErrorMessage(error.data?.detail || error.message || 'Elanı yadda saxlamaq mümkün olmadı.')
             setStatus('error')
         } finally {
             setSaving(false)
-        }
-    }
-
-    const handleImageSelect = async (event) => {
-        const file = event.target.files?.[0]
-        if (!file || !id) return
-
-        setUploading(true)
-        setUploadError('')
-        try {
-            const uploadedImage = await listingsAPI.uploadImage(id, file)
-            setForm((current) => ({ ...current, images: [...(current.images || []), uploadedImage] }))
-        } catch (error) {
-            setUploadError(error.data?.detail || error.message || 'Şəkli yükləmək mümkün olmadı.')
-        } finally {
-            setUploading(false)
-            if (fileInputRef.current) fileInputRef.current.value = ''
         }
     }
 
@@ -128,33 +100,6 @@ function ListingEditor() {
             <Checkbox label="Has WiFi" checked={form.has_wifi} onChange={(event) => update('has_wifi', event.target.checked)} toggle />
             <Checkbox label="Furnished" checked={form.is_furnished} onChange={(event) => update('is_furnished', event.target.checked)} toggle />
         </div>
-
-        {id ? (
-            <div className="listing-images-section">
-                <h2>Photos</h2>
-                {uploadError && <p className="listing-images-error">{uploadError}</p>}
-                <div className="listing-images-grid">
-                    {(form.images || []).map((image) => (
-                        <img key={image.id} src={image.image_url} alt="Listing" className="listing-image-thumb" />
-                    ))}
-                    <label className="listing-image-upload">
-                        <input
-                            ref={fileInputRef}
-                            type="file"
-                            accept="image/*"
-                            onChange={handleImageSelect}
-                            disabled={uploading}
-                            hidden
-                        />
-                        <Upload size={20} />
-                        <span>{uploading ? 'Uploading...' : 'Add photo'}</span>
-                    </label>
-                </div>
-            </div>
-        ) : (
-            <p className="listing-images-hint">You'll be able to add photos once the listing is created.</p>
-        )}
-
         <div className="listing-actions"><Button type="button" variant="secondary" onClick={() => navigate('/rooms')}>Cancel</Button><Button type="submit" disabled={saving}>{saving ? 'Saving...' : 'Save listing'}</Button></div>
     </form>
 }

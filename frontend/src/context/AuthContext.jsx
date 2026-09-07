@@ -20,13 +20,15 @@ export function AuthProvider({ children }) {
         return currentUser
     }, [])
 
-    // Backend's POST /users/ only returns the created user, not a token.
-    // So after registering, we log in with the same credentials to get one.
     const register = useCallback(async (data) => {
-        await authAPI.register(data)
-        const currentUser = await login(data.email, data.password)
+        const response = await authAPI.register(data)
+        localStorage.setItem('token', response.access_token)
+        setToken(response.access_token)
+        const currentUser = response.user || await authAPI.getCurrentUser()
+        localStorage.setItem('user', JSON.stringify(currentUser))
+        setUser(currentUser)
         return currentUser
-    }, [login])
+    }, [])
 
     const logout = useCallback(() => {
         localStorage.removeItem('token')
