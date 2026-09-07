@@ -11,6 +11,12 @@ import Home from './pages/Home'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import NotFound from './pages/NotFound'
+import RoomDetail from './pages/RoomDetail'
+import Profile from './pages/Profile'
+import Messages from './pages/Messages'
+import ConversationView from './pages/ConversationView'
+import ListingEditor from './pages/ListingEditor'
+import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute'
 
 // ── Lazy (route-based code splitting — ayrı chunk-lara bölünür) ──────────────
 const Rooms          = lazy(() => import('./pages/Rooms'))

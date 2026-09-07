@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, model_validator
+from pydantic import BaseModel, EmailStr, model_validator, Field
 from typing import Optional, List
 from datetime import datetime
 from typing import Optional
@@ -86,11 +86,11 @@ class ListingImageResponse(BaseModel):
 class ListingCreate(BaseModel):
     title: str
     description: Optional[str] = None
-    price_per_person: Decimal
+    price_per_person: Decimal = Field(gt=0)
     address: str
     district: DistrictEnum = DistrictEnum.other
     nearest_university: UniversityEnum = UniversityEnum.ada
-    available_spots: int
+    available_spots: int = Field(gt=0)
     phone_number: Optional[str] = None
     
     # Filtrlər
