@@ -79,7 +79,7 @@ class User(Base):
     profession = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     budget = Column(DECIMAL, nullable=True)
-    listings = relationship("Listing", back_populates="owner", cascade="all, delete-orphan")
+    listings = relationship("Listing", cascade="all, delete-orphan")
     sleep_schedule = Column(String, nullable=True)
     cleanliness_level = Column(String, nullable=True)
     religion = Column(String, nullable=True)
@@ -118,7 +118,6 @@ class Listing(Base):
     
     # Əlaqə
     owner = relationship("User")
-    images = relationship("ListingImage", back_populates="listing", cascade="all, delete-orphan")
 
 class ListingImage(Base):
     __tablename__ = "listing_images"

@@ -1,262 +1,210 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { apiClient } from '../api/client';
-import Card from '../components/Card/Card';
-import Button from '../components/Button/Button';
-import LoadingState from '../components/LoadingState/LoadingState';
-import EmptyState from '../components/EmptyState/EmptyState';
-import ErrorState from '../components/ErrorState/ErrorState';
-import './Rooms.css';
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import Input from '../components/Input/Input'
+import Card from '../components/Card/Card'
+import Button from '../components/Button/Button'
+import Spinner from '../components/Spinner/Spinner'
+import EmptyState from '../components/EmptyState/EmptyState'
+import ErrorState from '../components/ErrorState/ErrorState'
+import { listingsAPI } from '../api/listings'
+import './Rooms.css'
 
+const UNIVERSITIES = ['ADA University', 'BDU', 'ADNSU', 'ATU', 'Khazar University', 'Other']
+const DISTRICTS = ['Nasimi', 'Yasamal', 'Sabail', 'Narimanov', 'Nizami', 'Khatai', 'Binagadi', 'Qaradagh', 'Sabunchu', 'Surakhani', 'Other']
+const GENDERS = ['male', 'female', 'any']
+const RELIGIONS = ['muslim', 'christian', 'secular', 'other']
 
-const DISTRICTS = ['Nasimi', 'Yasamal', 'Sabail', 'Narimanov', 'Nizami', 'Khatai', 'Binagadi', 'Qaradagh', 'Sabunchu', 'Surakhani', 'Other'];
-const UNIVERSITIES = ['ADA University', 'BDU', 'ADNSU', 'ATU', 'Khazar University', 'Other'];
+const DEFAULT_FILTERS = {
+  nearest_university: '',
+  district: '',
+  min_price: '',
+  max_price: '',
+  preferred_gender: '',
+  smoking_allowed: '',
+  alcohol_allowed: '',
+  religion_preference: '',
+  has_wifi: '',
+  is_furnished: '',
+  min_available_spots: '',
+}
 
 function Rooms() {
-  const [filters, setFilters] = useState({
-    nearest_university: '',
-    district: '',
-    min_price: '',
-    max_price: '',
-    preferred_gender: '',
-    smoking_allowed: false,
-    alcohol_allowed: false,
-    religion_preference: '',
-    has_wifi: false,
-    is_furnished: false,
-    min_available_spots: ''
-  });
+  const navigate = useNavigate()
+  const [listings, setListings] = useState([])
+  const [search, setSearch] = useState('')
+  const [filters, setFilters] = useState(DEFAULT_FILTERS)
+  const [showFilters, setShowFilters] = useState(false)
+  const [status, setStatus] = useState('loading')
+  const [errorMessage, setErrorMessage] = useState('')
 
-  const [debouncedFilters, setDebouncedFilters] = useState(filters);
-  
-  const limit = 10;
-  const [skip, setSkip] = useState(0);
-
-  const [listings, setListings] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(false);
-  const [hasMore, setHasMore] = useState(false);
-  const [filterOpen, setFilterOpen] = useState(false);
-
-  // Debounce — 400ms (checkbox/select kliklərində hər dəfəsiniə API çağırmır)
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedFilters(filters);
-      setSkip(0); // Filtr dəyişdikdə pagination-ı sıfırla
-    }, 400);
-    return () => clearTimeout(timer);
-  }, [filters]);
-
-  // useCallback — fetchListings hər render-də yenidən yaranır
-  const fetchListings = useCallback(async () => {
-    setIsLoading(true);
-    setError(false);
+  const loadListings = useCallback(async (activeFilters) => {
+    setStatus('loading')
+    setErrorMessage('')
     try {
-      const query = new URLSearchParams();
-      query.append('skip', skip);
-      query.append('limit', limit);
-
-      Object.entries(debouncedFilters).forEach(([key, value]) => {
-        if (value !== '' && value !== false && value !== null) {
-          query.append(key, value);
-        }
-      });
-
-      const res = await apiClient(`/listings/?${query.toString()}`);
-
-      // Handle both array and paginated object responses gracefully
-      const data = Array.isArray(res) ? res : (res.items || []);
-
-      setListings(data);
-      setHasMore(data.length === limit);
-    } catch (err) {
-      setError(true);
-    } finally {
-      setIsLoading(false);
+      // Strip empty values so we don't send ?district=&max_price= etc.
+      const cleanFilters = Object.fromEntries(
+        Object.entries(activeFilters).filter(([, value]) => value !== '')
+      )
+      const response = await listingsAPI.getAll(cleanFilters)
+      const loadedListings = Array.isArray(response) ? response : response.items || []
+      setListings(loadedListings)
+      setStatus(loadedListings.length ? 'success' : 'empty')
+    } catch (error) {
+      setErrorMessage(error.data?.detail || error.message || 'Elanları yükləmək mümkün olmadı.')
+      setStatus('error')
     }
-  }, [debouncedFilters, skip]);
+  }, [])
 
   useEffect(() => {
-    fetchListings();
-  }, [fetchListings]);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadListings(filters)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
-  // useCallback — handler-lər məmo-luşdurulub
-  const handleFilterChange = useCallback((e) => {
-    const { name, value, type, checked } = e.target;
-    setFilters(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
-  }, []);
+  const updateFilter = (key, value) => setFilters((current) => ({ ...current, [key]: value }))
 
-  const EMPTY_FILTERS = {
-    nearest_university: '',
-    district: '',
-    min_price: '',
-    max_price: '',
-    preferred_gender: '',
-    smoking_allowed: false,
-    alcohol_allowed: false,
-    religion_preference: '',
-    has_wifi: false,
-    is_furnished: false,
-    min_available_spots: ''
-  };
+  const applyFilters = (event) => {
+    event.preventDefault()
+    loadListings(filters)
+  }
 
-  const handleResetFilters = useCallback(() => {
-    setFilters(EMPTY_FILTERS);
-  }, []);
+  const clearFilters = () => {
+    setFilters(DEFAULT_FILTERS)
+    loadListings(DEFAULT_FILTERS)
+  }
+
+  // Free-text search still happens client-side, on top of whatever the backend already filtered
+  const filteredListings = useMemo(() => {
+    const query = search.trim().toLowerCase()
+    if (!query) return listings
+    return listings.filter((listing) =>
+      `${listing.title || ''} ${listing.address || ''} ${listing.description || ''}`.toLowerCase().includes(query),
+    )
+  }, [listings, search])
 
   return (
     <div className="rooms-page">
       <div className="rooms-header">
-        <h1>Elan Axtar</h1>
-        <p>Tələbə yoldaşları ilə rahat yaşayış yeri tapın.</p>
-        {/* Mobile filter toggle */}
-        <button
-          className="filter-toggle-btn"
-          onClick={() => setFilterOpen(prev => !prev)}
-          aria-expanded={filterOpen}
-        >
-          {filterOpen ? '✕ Filtrləri Bağla' : '⚙ Filtrləri Göstər'}
-        </button>
+        <h1>Find a Room</h1>
+
+        <p>
+          Find a comfortable place to live with other students.
+        </p>
+
+        <Input
+          label="Search"
+          placeholder="Search by location..."
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+        />
+
+        <Button type="button" variant="secondary" onClick={() => setShowFilters((current) => !current)}>
+          {showFilters ? 'Hide filters' : 'Show filters'}
+        </Button>
       </div>
 
-      <div className="rooms-layout">
-        {/* Filter Panel */}
-        <aside className={`rooms-filters ${filterOpen ? 'filters-open' : ''}`}>
-          <h3>Filtrlər</h3>
-          
-          <div className="filter-group">
-            <label>District</label>
-            <select name="district" value={filters.district} onChange={handleFilterChange}>
-              <option value="">All Districts</option>
-              {DISTRICTS.map(d => <option key={d} value={d}>{d}</option>)}
-            </select>
+      {showFilters && (
+        <form className="rooms-filters" onSubmit={applyFilters}>
+          <div className="filter-grid">
+            <label className="filter-field">
+              <span>University</span>
+              <select value={filters.nearest_university} onChange={(e) => updateFilter('nearest_university', e.target.value)}>
+                <option value="">Any</option>
+                {UNIVERSITIES.map((u) => <option key={u} value={u}>{u}</option>)}
+              </select>
+            </label>
+
+            <label className="filter-field">
+              <span>District</span>
+              <select value={filters.district} onChange={(e) => updateFilter('district', e.target.value)}>
+                <option value="">Any</option>
+                {DISTRICTS.map((d) => <option key={d} value={d}>{d}</option>)}
+              </select>
+            </label>
+
+            <label className="filter-field">
+              <span>Min price (AZN)</span>
+              <input type="number" min="0" value={filters.min_price} onChange={(e) => updateFilter('min_price', e.target.value)} />
+            </label>
+
+            <label className="filter-field">
+              <span>Max price (AZN)</span>
+              <input type="number" min="0" value={filters.max_price} onChange={(e) => updateFilter('max_price', e.target.value)} />
+            </label>
+
+            <label className="filter-field">
+              <span>Preferred gender</span>
+              <select value={filters.preferred_gender} onChange={(e) => updateFilter('preferred_gender', e.target.value)}>
+                <option value="">Any</option>
+                {GENDERS.map((g) => <option key={g} value={g}>{g}</option>)}
+              </select>
+            </label>
+
+            <label className="filter-field">
+              <span>Religion preference</span>
+              <select value={filters.religion_preference} onChange={(e) => updateFilter('religion_preference', e.target.value)}>
+                <option value="">Any</option>
+                {RELIGIONS.map((r) => <option key={r} value={r}>{r}</option>)}
+              </select>
+            </label>
+
+            <label className="filter-field">
+              <span>Min available spots</span>
+              <input type="number" min="1" value={filters.min_available_spots} onChange={(e) => updateFilter('min_available_spots', e.target.value)} />
+            </label>
+
+            <label className="filter-field filter-checkbox">
+              <input type="checkbox" checked={filters.has_wifi === 'true'} onChange={(e) => updateFilter('has_wifi', e.target.checked ? 'true' : '')} />
+              <span>Has WiFi</span>
+            </label>
+
+            <label className="filter-field filter-checkbox">
+              <input type="checkbox" checked={filters.is_furnished === 'true'} onChange={(e) => updateFilter('is_furnished', e.target.checked ? 'true' : '')} />
+              <span>Furnished</span>
+            </label>
+
+            <label className="filter-field filter-checkbox">
+              <input type="checkbox" checked={filters.smoking_allowed === 'true'} onChange={(e) => updateFilter('smoking_allowed', e.target.checked ? 'true' : '')} />
+              <span>Smoking allowed</span>
+            </label>
+
+            <label className="filter-field filter-checkbox">
+              <input type="checkbox" checked={filters.alcohol_allowed === 'true'} onChange={(e) => updateFilter('alcohol_allowed', e.target.checked ? 'true' : '')} />
+              <span>Alcohol allowed</span>
+            </label>
           </div>
 
-          <div className="filter-group">
-            <label>University</label>
-            <select name="nearest_university" value={filters.nearest_university} onChange={handleFilterChange}>
-              <option value="">All Universities</option>
-              {UNIVERSITIES.map(u => <option key={u} value={u}>{u}</option>)}
-            </select>
+          <div className="filter-actions">
+            <Button type="button" variant="secondary" onClick={clearFilters}>Clear filters</Button>
+            <Button type="submit">Apply filters</Button>
           </div>
+        </form>
+      )}
 
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <div className="filter-group" style={{ flex: 1 }}>
-              <label>Min Price</label>
-              <input type="number" name="min_price" value={filters.min_price} onChange={handleFilterChange} placeholder="0" />
-            </div>
-            <div className="filter-group" style={{ flex: 1 }}>
-              <label>Max Price</label>
-              <input type="number" name="max_price" value={filters.max_price} onChange={handleFilterChange} placeholder="Any" />
-            </div>
-          </div>
+      <h2>Available Rooms</h2>
 
-          <div className="filter-group">
-            <label>Preferred Gender</label>
-            <select name="preferred_gender" value={filters.preferred_gender} onChange={handleFilterChange}>
-              <option value="">Any</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-            </select>
-          </div>
-
-          <div className="filter-group">
-            <label>Religion Preference</label>
-            <select name="religion_preference" value={filters.religion_preference} onChange={handleFilterChange}>
-              <option value="">Any</option>
-              <option value="muslim">Muslim</option>
-              <option value="christian">Christian</option>
-              <option value="secular">Secular</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-          
-          <div className="filter-group">
-            <label>Min Available Spots</label>
-            <input type="number" name="min_available_spots" value={filters.min_available_spots} onChange={handleFilterChange} min="1" placeholder="1" />
-          </div>
-
-          <label className="filter-group-checkbox">
-            <input type="checkbox" name="has_wifi" checked={filters.has_wifi} onChange={handleFilterChange} />
-            WiFi Included
-          </label>
-
-          <label className="filter-group-checkbox">
-            <input type="checkbox" name="is_furnished" checked={filters.is_furnished} onChange={handleFilterChange} />
-            Furnished
-          </label>
-          
-          <label className="filter-group-checkbox">
-            <input type="checkbox" name="smoking_allowed" checked={filters.smoking_allowed} onChange={handleFilterChange} />
-            Smoking Allowed
-          </label>
-
-          <label className="filter-group-checkbox">
-            <input type="checkbox" name="alcohol_allowed" checked={filters.alcohol_allowed} onChange={handleFilterChange} />
-            Alcohol Allowed
-          </label>
-
-        </aside>
-
-        {/* Listings Grid */}
-        <main className="rooms-main">
-          {isLoading ? (
-            <LoadingState variant="skeleton" count={6} skeletonHeight={360} />
-          ) : error ? (
-            <ErrorState
-              message="Elanlar yüklənərkən xəta baş verdi."
-              onRetry={fetchListings}
+      {status === 'loading' && <Spinner />}
+      {status === 'error' && <ErrorState message={errorMessage} onRetry={() => loadListings(filters)} />}
+      {(status === 'empty' || (status === 'success' && !filteredListings.length)) && (
+        <EmptyState title="Uyğun elan tapılmadı" message="Axtarışınızı dəyişib yenidən yoxlayın." />
+      )}
+      {status === 'success' && filteredListings.length > 0 && (
+        <div className="rooms-list">
+          {filteredListings.map((listing) => (
+            <Card
+              key={listing.id}
+              onViewDetails={() => navigate(`/rooms/${listing.id}`)}
+              title={listing.title}
+              location={listing.address}
+              roommates={listing.available_spots}
+              description={listing.description}
+              image={listing.images?.[0]?.image_url}
             />
-          ) : listings.length === 0 ? (
-            <EmptyState
-              icon="🔍"
-              title="Filtrinizə uyğun elan tapılmadı"
-              description="Filtr şərtlərini dəyişdirərək yenidən cəhd edin."
-              ctaLabel="Filtrləri sıfırla"
-              onCta={handleResetFilters}
-            />
-          ) : (
-            <>
-              <div className="rooms-grid">
-                {listings.map(listing => (
-                  <Card 
-                    key={listing.id}
-                    id={listing.id}
-                    title={listing.title}
-                    price_per_person={listing.price_per_person}
-                    district={listing.district}
-                    nearest_university={listing.nearest_university}
-                    image={listing.images && listing.images.length > 0 ? listing.images[0] : null}
-                    has_wifi={listing.has_wifi}
-                    is_furnished={listing.is_furnished}
-                    preferred_gender={listing.preferred_gender}
-                  />
-                ))}
-              </div>
-              
-              <div className="pagination-controls">
-                <Button 
-                  disabled={skip === 0} 
-                  onClick={() => setSkip(prev => Math.max(0, prev - limit))}
-                >
-                  Previous
-                </Button>
-                <span>Page {Math.floor(skip / limit) + 1}</span>
-                <Button 
-                  disabled={!hasMore} 
-                  onClick={() => setSkip(prev => prev + limit)}
-                >
-                  Next
-                </Button>
-              </div>
-            </>
-          )}
-        </main>
-      </div>
+          ))}
+        </div>
+      )}
     </div>
-  );
+  )
 }
 
-export default Rooms;
+export default Rooms

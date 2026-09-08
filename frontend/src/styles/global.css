@@ -56,26 +56,3 @@ h6,
 p {
   margin: 0;
 }
-
-/* ── Global mobile safety ── */
-html, body {
-  overflow-x: hidden;
-}
-
-/* All clickable elements meet 44px touch target on mobile */
-@media (max-width: 768px) {
-  button,
-  [role="button"],
-  .navbar-links a,
-  input[type="checkbox"],
-  input[type="radio"] {
-    min-height: var(--touch-target);
-  }
-
-  input[type="checkbox"],
-  input[type="radio"] {
-    min-height: unset;
-    width: 20px;
-    height: 20px;
-  }
-}
