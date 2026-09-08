@@ -1,187 +1,104 @@
-/* ── Base ── */
 .rooms-page {
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
+  width: 100%;
 }
 
 .rooms-header {
-  margin-bottom: 2rem;
+  margin-bottom: var(--spacing-xl);
 }
 
 .rooms-header h1 {
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
+  margin: 0 0 var(--spacing-sm);
+  font-size: 40px;
+  font-weight: 700;
 }
 
-/* Mobile filter toggle — hidden on desktop */
-.filter-toggle-btn {
-  display: none;
+.rooms-header p {
+  margin: 0 0 var(--spacing-lg);
+  color: var(--color-text-muted);
 }
 
-.rooms-layout {
-  display: flex;
-  gap: 2rem;
-  align-items: flex-start;
+.rooms-header .input-container {
+  max-width: 500px;
 }
 
-/* ── Filter sidebar ── */
-.rooms-filters {
-  flex: 0 0 280px;
-  background: white;
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  position: sticky;
-  top: 1rem;
+.rooms-page > h2 {
+  margin-bottom: var(--spacing-lg);
+  font-size: var(--font-size-lg);
 }
 
-.rooms-filters h3 {
-  margin-top: 0;
-  margin-bottom: 1.5rem;
-  font-size: 1.15rem;
-}
-
-.filter-group {
-  margin-bottom: 1.25rem;
-}
-
-.filter-group label {
-  display: block;
-  font-size: 0.875rem;
-  font-weight: 500;
-  margin-bottom: 0.5rem;
-  color: #374151;
-}
-
-.filter-group select,
-.filter-group input[type="number"] {
-  width: 100%;
-  padding: 0.6rem 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  min-height: 44px;
-}
-
-.filter-group select:focus,
-.filter-group input:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59,130,246,0.2);
-}
-
-.filter-group-checkbox {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  margin-bottom: 0.6rem;
-  font-size: 0.95rem;
-  cursor: pointer;
-  min-height: 36px;
-}
-
-.filter-group-checkbox input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  accent-color: #3b82f6;
-  flex-shrink: 0;
-}
-
-/* ── Listings main ── */
-.rooms-main {
-  flex: 1;
-  min-width: 0; /* prevent overflow */
-}
-
-.rooms-grid {
+.rooms-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--spacing-xl);
 }
 
-.rooms-skeleton {
+.rooms-list .card {
   width: 100%;
-  height: 380px;
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-  background-size: 200% 100%;
-  animation: rooms-shimmer 1.5s infinite;
-  border-radius: 12px;
+  margin-top: 0;
+  box-sizing: border-box;
 }
 
-@keyframes rooms-shimmer {
-  0%   { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
-
-.pagination-controls {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-/* ── Tablet  768px ── */
 @media (max-width: 768px) {
-  .rooms-page {
-    padding: 1rem;
-  }
-
-  /* Show the filter toggle button */
-  .filter-toggle-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    margin-top: 0.75rem;
-    padding: 0.6rem 1.25rem;
-    background: #f3f4f6;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    font-weight: 500;
-    cursor: pointer;
-    min-height: 44px;
-    transition: background 0.2s;
-  }
-
-  .filter-toggle-btn:hover {
-    background: #e5e7eb;
-  }
-
-  .rooms-layout {
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  /* Filter panel collapsed by default on mobile */
-  .rooms-filters {
-    flex: none;
-    width: 100%;
-    position: static;
-    /* Hidden by default */
-    display: none;
-  }
-
-  /* Shown when .filters-open is present */
-  .rooms-filters.filters-open {
-    display: block;
-  }
-
-  .rooms-grid {
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 1rem;
-  }
-}
-
-/* ── Small phones  480px ── */
-@media (max-width: 480px) {
   .rooms-header h1 {
-    font-size: 1.5rem;
+    font-size: 32px;
   }
 
-  .rooms-grid {
+  .rooms-list {
     grid-template-columns: 1fr;
   }
+}
+.rooms-filters {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    margin: var(--spacing-md) 0 var(--spacing-lg);
+}
+
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: var(--spacing-md);
+}
+
+.filter-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    font-size: var(--font-size-sm);
+    color: var(--color-text);
+}
+
+.filter-field select,
+.filter-field input[type="number"] {
+    padding: var(--spacing-sm);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-md);
+    background: var(--color-surface);
+    color: var(--color-text);
+}
+
+.filter-field select:focus,
+.filter-field input[type="number"]:focus {
+    outline: none;
+    border-color: var(--color-primary);
+}
+
+.filter-checkbox {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.filter-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+}
+
+.filter-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-lg);
 }

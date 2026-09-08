@@ -1,197 +1,72 @@
 .onboarding-page {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background-color: #f5f7fa;
-  padding: 2rem 1rem;
+    display: flex;
+    justify-content: center;
+    padding: var(--spacing-xl) var(--spacing-md);
 }
 
 .onboarding-card {
-  background: white;
-  width: 100%;
-  max-width: 600px;
-  border-radius: 12px;
-  padding: 2rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 560px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: var(--spacing-xl);
 }
 
-.onboarding-header-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 1.5rem;
+.onboarding-title {
+    font-size: var(--font-size-xl);
+    color: var(--color-text);
+    margin-bottom: var(--spacing-xs);
 }
 
-.onboarding-header-top h1 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #333;
-  margin: 0;
-  flex: 1;
+.onboarding-subtitle {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-md);
+    margin-bottom: var(--spacing-lg);
 }
 
-.skip-btn {
-  background: none;
-  border: none;
-  color: #666;
-  text-decoration: underline;
-  cursor: pointer;
-  font-size: 0.875rem;
-  padding: 0.25rem 0.5rem;
+.onboarding-select-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    margin-bottom: var(--spacing-md);
 }
 
-.skip-btn:hover {
-  color: #333;
+.onboarding-select-field span {
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--color-text);
 }
 
-.progress-bar-container {
-  height: 8px;
-  background-color: #e5e7eb;
-  border-radius: 4px;
-  overflow: hidden;
-  margin-bottom: 0.5rem;
+.onboarding-select-field select {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-md);
+    color: var(--color-text);
+    background: var(--color-surface);
 }
 
-.progress-bar {
-  height: 100%;
-  background-color: #3b82f6; /* Adjust color to match app theme */
-  transition: width 0.3s ease;
+.onboarding-select-field select:focus {
+    outline: none;
+    border-color: var(--color-primary);
 }
 
-.onboarding-header p {
-  color: #6b7280;
-  font-size: 0.875rem;
-  margin-bottom: 2rem;
-}
-
-.onboarding-error {
-  background-color: #fee2e2;
-  color: #b91c1c;
-  padding: 0.75rem;
-  border-radius: 6px;
-  margin-bottom: 1.5rem;
-  text-align: center;
-  font-size: 0.875rem;
-}
-
-.step-content {
-  animation: fadeIn 0.3s ease-in-out;
-}
-
-.step-content h3 {
-  font-size: 1.25rem;
-  margin-bottom: 1.5rem;
-  color: #1f2937;
-}
-
-.form-group {
-  margin-bottom: 1.25rem;
-  display: flex;
-  flex-direction: column;
-}
-
-.form-group label {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #4b5563;
-  margin-bottom: 0.5rem;
-}
-
-.form-group input[type="number"],
-.form-group select {
-  padding: 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  font-size: 1rem;
-  outline: none;
-  background-color: white;
-}
-
-.form-group input[type="number"]:focus,
-.form-group select:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-}
-
-.form-group-checkbox {
-  margin-bottom: 1.25rem;
-}
-
-.form-group-checkbox label {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  font-size: 1rem;
-  color: #374151;
-}
-
-.form-group-checkbox input[type="checkbox"] {
-  margin-right: 0.75rem;
-  width: 1.25rem;
-  height: 1.25rem;
-  accent-color: #3b82f6;
+.onboarding-checkboxes {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    margin: var(--spacing-md) 0 var(--spacing-lg);
 }
 
 .onboarding-actions {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 2rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-lg);
 }
 
 .onboarding-actions button {
-  min-width: 120px;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(5px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* ── Tablet ≤ 768px ── */
-@media (max-width: 768px) {
-  .onboarding-page {
-    padding: 1rem;
-    align-items: flex-start;
-    min-height: unset;
-  }
-
-  .onboarding-card {
-    padding: 1.5rem 1.25rem;
-  }
-
-  .form-group input[type="number"],
-  .form-group select {
-    min-height: 44px;
-  }
-
-  .onboarding-actions {
-    flex-direction: column-reverse;
-    gap: 0.75rem;
-  }
-
-  .onboarding-actions button {
-    width: 100%;
-    min-height: 44px;
-  }
-
-  .skip-btn {
-    min-height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-}
-
-/* ── Phones ≤ 480px ── */
-@media (max-width: 480px) {
-  .onboarding-header-top h1 {
-    font-size: 1.25rem;
-  }
-
-  .step-content h3 {
-    font-size: 1.1rem;
-  }
+    flex: 1;
 }

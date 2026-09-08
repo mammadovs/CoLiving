@@ -1,31 +1,24 @@
 .error-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 4rem 2rem;
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    display: grid;
+    justify-items: center;
+    gap: var(--spacing-sm);
+    min-height: 180px;
+    padding: var(--spacing-xl);
+    color: var(--color-text-muted);
+    text-align: center;
 }
 
-.error-state-icon {
-  font-size: 3rem;
-  line-height: 1;
-  margin-bottom: 1.25rem;
+.error-state svg {
+    color: var(--color-error);
 }
 
-.error-state-title {
-  font-size: 1.4rem;
-  font-weight: 600;
-  color: #1f2937;
-  margin: 0 0 0.5rem;
+.error-state h2 {
+    margin: 0;
+    color: var(--color-text);
+    font-size: var(--font-size-lg);
 }
 
-.error-state-message {
-  font-size: 0.95rem;
-  color: #6b7280;
-  margin: 0;
-  max-width: 380px;
-  line-height: 1.6;
+.error-state p {
+    max-width: 520px;
+    margin: 0 0 var(--spacing-md);
 }

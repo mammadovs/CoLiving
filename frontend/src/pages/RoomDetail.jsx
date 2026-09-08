@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { MapPin, MessageCircle, Users } from 'lucide-react'
+import { MapPin, MessageCircle, Users, UserCircle } from 'lucide-react'
 import Button from '../components/Button/Button'
 import Badge from '../components/Badge/Badge'
 import Spinner from '../components/Spinner/Spinner'
@@ -48,7 +48,7 @@ function RoomDetail() {
     return (
         <article className="room-detail-page">
             <Link to="/rooms" className="room-detail-back">Back to rooms</Link>
-            <div className="room-detail-gallery">{(listing.images || []).map((image) => <img key={image} src={image} alt={listing.title} />)}</div>
+            <div className="room-detail-gallery">{(listing.images || []).map((image) => <img key={image.id} src={image.image_url} alt={listing.title} />)}</div>
             <div className="room-detail-main">
                 <div>
                     <h1>{listing.title}</h1>
@@ -56,7 +56,7 @@ function RoomDetail() {
                     <p>{listing.description}</p>
                     <div className="room-detail-tags"><Badge variant="primary">{listing.district}</Badge><Badge variant="primary">{listing.nearest_university}</Badge>{listing.is_furnished && <Badge variant="success">Furnished</Badge>}{listing.has_wifi && <Badge variant="success">WiFi</Badge>}</div>
                 </div>
-                <aside className="room-detail-aside"><strong>{listing.price_per_person} AZN / person</strong><dl>{[['Preferred gender', listing.preferred_gender], ['Smoking', listing.smoking_allowed ? 'Allowed' : 'No'], ['Alcohol', listing.alcohol_allowed ? 'Allowed' : 'No'], ['Religion', listing.religion_preference]].map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl><Button onClick={() => navigate(`/messages/${listing.owner_id}`)}><MessageCircle size={16} /> Contact owner</Button></aside>
+                <aside className="room-detail-aside"><strong>{listing.price_per_person} AZN / person</strong><dl>{[['Preferred gender', listing.preferred_gender], ['Smoking', listing.smoking_allowed ? 'Allowed' : 'No'], ['Alcohol', listing.alcohol_allowed ? 'Allowed' : 'No'], ['Religion', listing.religion_preference]].map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl><Button onClick={() => navigate(`/messages/${listing.user_id}`)}><MessageCircle size={16} /> Contact owner</Button><Button variant="secondary" onClick={() => navigate(`/profile/${listing.user_id}`)}><UserCircle size={16} /> View profile & compatibility</Button></aside>
             </div>
         </article>
     )

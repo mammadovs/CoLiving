@@ -4,7 +4,6 @@ from app.database import get_db
 from app import models, schemas
 from app.utils import hash_password
 from app.oauth2 import get_current_user
-from app.oauth2 import get_current_user
 from app.matching import calculate_compatibility
 
 router = APIRouter(
@@ -103,15 +102,6 @@ def delete_my_account(
     user_query = db.query(models.User).filter(models.User.id == current_user.id)
     user_query.delete(synchronize_session=False)
     db.commit()
-
-@router.get(
-    "/me",
-    response_model=schemas.UserResponse,
-    summary="Get my own profile",
-    description="Returns the profile of the currently logged-in user, based on their access token."
-)
-def get_my_profile(current_user: models.User = Depends(get_current_user)):
-    return current_user
 
 # Hər hansı istifadəçinin profilini görmək
 @router.get(

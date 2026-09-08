@@ -1,72 +1,36 @@
-export const BASE_URL = 'http://127.0.0.1:8000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
-export async function apiClient(endpoint, { method = 'GET', body, ...customConfig } = {}) {
-  const token = localStorage.getItem('token');
-  const headers = {};
+const apiCall = async (endpoint, options = {}) => {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        ...options,
+        headers: {
+            ...(options.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
+            ...(localStorage.getItem('token') ? { Authorization: `Bearer ${localStorage.getItem('token')}` } : {}),
+            ...options.headers,
+        },
+    })
 
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
-
-  const config = {
-    method,
-    headers,
-    ...customConfig,
-  };
-
-  // POST /login üçün form-encoded
-  if (endpoint === '/login' && method === 'POST') {
-    headers['Content-Type'] = 'application/x-www-form-urlencoded';
-    if (body) {
-      const params = new URLSearchParams();
-      for (const key in body) {
-        params.append(key, body[key]);
-      }
-      config.body = params.toString();
+    let data
+    try {
+        data = await response.json()
+    } catch {
+        data = {}
     }
-  } else {
-    // Digər endpointlər üçün JSON
-    if (body) {
-      if (body instanceof FormData) {
-        config.body = body;
-      } else {
-        headers['Content-Type'] = 'application/json';
-        config.body = JSON.stringify(body);
-      }
-    }
-  }
-
-  try {
-    const response = await fetch(`${BASE_URL}${endpoint}`, config);
 
     if (response.status === 401) {
-      localStorage.removeItem('token');
-      // Redirect to login handled on caller side or by router usually, 
-      // but if we want hard redirect:
-      window.location.href = '/login'; 
-      throw new Error('Unauthorized');
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+        if (typeof window !== 'undefined') window.location.href = '/login'
     }
-
-    const data = await response.json().catch(() => null);
 
     if (!response.ok) {
-      // Backend message error handling
-      let errorMessage = 'Something went wrong';
-      if (typeof data?.detail === 'string') {
-        errorMessage = data.detail;
-      } else if (Array.isArray(data?.detail)) {
-        errorMessage = data.detail[0]?.msg || 'Validation error';
-      } else if (data?.message) {
-        errorMessage = data.message;
-      }
-
-      const error = new Error(errorMessage);
-      error.status = response.status;
-      throw error;
+        const error = new Error(data.detail || data.message || 'An error occurred')
+        error.status = response.status
+        error.data = data
+        throw error
     }
 
-    return data;
-  } catch (error) {
-    throw error;
-  }
+    return data
 }
+
+export default apiCall
