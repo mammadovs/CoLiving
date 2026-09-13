@@ -41,7 +41,6 @@ function Rooms() {
     setStatus('loading')
     setErrorMessage('')
     try {
-      // Strip empty values so we don't send ?district=&max_price= etc.
       const cleanFilters = Object.fromEntries(
         Object.entries(activeFilters).filter(([, value]) => value !== '')
       )
@@ -56,10 +55,8 @@ function Rooms() {
   }, [])
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadListings(filters)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [loadListings, filters])
 
   const updateFilter = (key, value) => setFilters((current) => ({ ...current, [key]: value }))
 
@@ -73,7 +70,6 @@ function Rooms() {
     loadListings(DEFAULT_FILTERS)
   }
 
-  // Free-text search still happens client-side, on top of whatever the backend already filtered
   const filteredListings = useMemo(() => {
     const query = search.trim().toLowerCase()
     if (!query) return listings
@@ -84,27 +80,30 @@ function Rooms() {
 
   return (
     <div className="rooms-page">
-      <div className="rooms-header">
+      <div className="rooms-header-card">
+        <span className="rooms-subtitle">COLIVING</span>
         <h1>Find a Room</h1>
+        <p>Find a comfortable place to live with other students and ideal roommates.</p>
 
-        <p>
-          Find a comfortable place to live with other students.
-        </p>
-
-        <Input
-          label="Search"
-          placeholder="Search by location..."
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-        />
-
-        <Button type="button" variant="secondary" onClick={() => setShowFilters((current) => !current)}>
-          {showFilters ? 'Hide filters' : 'Show filters'}
-        </Button>
+        <div className="rooms-search-bar">
+          <Input
+            label="Search"
+            placeholder="Search by location, title..."
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+          />
+          <Button 
+            type="button" 
+            variant={showFilters ? "primary" : "secondary"} 
+            onClick={() => setShowFilters((current) => !current)}
+          >
+            {showFilters ? 'Hide filters' : 'Filters'}
+          </Button>
+        </div>
       </div>
 
       {showFilters && (
-        <form className="rooms-filters" onSubmit={applyFilters}>
+        <form className="rooms-filters-card animate-fade-in" onSubmit={applyFilters}>
           <div className="filter-grid">
             <label className="filter-field">
               <span>University</span>
@@ -124,12 +123,12 @@ function Rooms() {
 
             <label className="filter-field">
               <span>Min price (AZN)</span>
-              <input type="number" min="0" value={filters.min_price} onChange={(e) => updateFilter('min_price', e.target.value)} />
+              <input type="number" min="0" placeholder="0" value={filters.min_price} onChange={(e) => updateFilter('min_price', e.target.value)} />
             </label>
 
             <label className="filter-field">
               <span>Max price (AZN)</span>
-              <input type="number" min="0" value={filters.max_price} onChange={(e) => updateFilter('max_price', e.target.value)} />
+              <input type="number" min="0" placeholder="Any" value={filters.max_price} onChange={(e) => updateFilter('max_price', e.target.value)} />
             </label>
 
             <label className="filter-field">
@@ -150,25 +149,27 @@ function Rooms() {
 
             <label className="filter-field">
               <span>Min available spots</span>
-              <input type="number" min="1" value={filters.min_available_spots} onChange={(e) => updateFilter('min_available_spots', e.target.value)} />
+              <input type="number" min="1" placeholder="1" value={filters.min_available_spots} onChange={(e) => updateFilter('min_available_spots', e.target.value)} />
             </label>
+          </div>
 
-            <label className="filter-field filter-checkbox">
+          <div className="filter-checkboxes">
+            <label className="filter-checkbox">
               <input type="checkbox" checked={filters.has_wifi === 'true'} onChange={(e) => updateFilter('has_wifi', e.target.checked ? 'true' : '')} />
               <span>Has WiFi</span>
             </label>
 
-            <label className="filter-field filter-checkbox">
+            <label className="filter-checkbox">
               <input type="checkbox" checked={filters.is_furnished === 'true'} onChange={(e) => updateFilter('is_furnished', e.target.checked ? 'true' : '')} />
               <span>Furnished</span>
             </label>
 
-            <label className="filter-field filter-checkbox">
+            <label className="filter-checkbox">
               <input type="checkbox" checked={filters.smoking_allowed === 'true'} onChange={(e) => updateFilter('smoking_allowed', e.target.checked ? 'true' : '')} />
               <span>Smoking allowed</span>
             </label>
 
-            <label className="filter-field filter-checkbox">
+            <label className="filter-checkbox">
               <input type="checkbox" checked={filters.alcohol_allowed === 'true'} onChange={(e) => updateFilter('alcohol_allowed', e.target.checked ? 'true' : '')} />
               <span>Alcohol allowed</span>
             </label>
@@ -181,28 +182,41 @@ function Rooms() {
         </form>
       )}
 
-      <h2>Available Rooms</h2>
+      <div className="rooms-results-section">
+        <h2>Available Rooms</h2>
 
-      {status === 'loading' && <Spinner />}
-      {status === 'error' && <ErrorState message={errorMessage} onRetry={() => loadListings(filters)} />}
-      {(status === 'empty' || (status === 'success' && !filteredListings.length)) && (
-        <EmptyState title="Uyğun elan tapılmadı" message="Axtarışınızı dəyişib yenidən yoxlayın." />
-      )}
-      {status === 'success' && filteredListings.length > 0 && (
-        <div className="rooms-list">
-          {filteredListings.map((listing) => (
-            <Card
-              key={listing.id}
-              onViewDetails={() => navigate(`/rooms/${listing.id}`)}
-              title={listing.title}
-              location={listing.address}
-              roommates={listing.available_spots}
-              description={listing.description}
-              image={listing.images?.[0]?.image_url}
-            />
-          ))}
-        </div>
-      )}
+        {status === 'loading' && <Spinner />}
+        {status === 'error' && <ErrorState message={errorMessage} onRetry={() => loadListings(filters)} />}
+        {(status === 'empty' || (status === 'success' && !filteredListings.length)) && (
+          <EmptyState title="Uyğun elan tapılmadı" message="Axtarışınızı dəyişib yenidən yoxlayın." />
+        )}
+        {status === 'success' && filteredListings.length > 0 && (
+          <div className="rooms-list">
+            {filteredListings.map((listing) => {
+              const BACKEND_URL = 'http://localhost:8000'; 
+              let imageUrl = listing.images?.[0]?.image_url;
+              
+              if (imageUrl && !imageUrl.startsWith('http')) {
+                const cleanPath = imageUrl.replace(/^\//, ''); 
+                const path = cleanPath.startsWith('static/') ? cleanPath : `static/${cleanPath}`;
+                imageUrl = `${BACKEND_URL}/${path}`;
+              }
+
+              return (
+                <Card
+                  key={listing.id}
+                  onViewDetails={() => navigate(`/rooms/${listing.id}`)}
+                  title={listing.title}
+                  location={listing.address}
+                  roommates={listing.available_spots}
+                  description={listing.description}
+                  image={imageUrl} 
+                />
+              )
+            })}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

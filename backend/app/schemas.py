@@ -106,8 +106,10 @@ class ListingCreate(BaseModel):
 
 class ListingResponse(ListingCreate):
     id: int
-    user_id: int # Bu 'owner_id' əvəzinə models.py-da 'user_id' yazmısan
+    user_id: int
     images: List[ListingImageResponse] = []
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
 
     class Config:
         from_attributes = True

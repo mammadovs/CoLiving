@@ -67,7 +67,7 @@ export default function Signup() {
 
             await register(payload)
             showToast('Account created! Welcome to CoLiving.', 'success')
-            navigate('/onboarding')
+            navigate(isStudent ? '/onboarding' : '/rooms')
         } catch (err) {
             if (err.status === 400) {
                 setErrors({ email: 'An account with this email already exists.' })

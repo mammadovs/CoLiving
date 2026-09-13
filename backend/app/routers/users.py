@@ -11,6 +11,117 @@ router = APIRouter(
     tags=["Users"]
 )
 
+@router.post(
+    "/",
+    response_model=schemas.UserResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Register a new user",
+    description="Creates a new user account. If is_student is true, the email must belong to a recognized university domain (ending in edu.az). Optional lifestyle/profile fields (budget, sleep schedule, cleanliness, religion, etc.) can be included to enable compatibility scoring."
+)
+def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    # E-poçt yoxlanışı
+    existing_user = db.query(models.User).filter(models.User.email == user.email).first()
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Bu e-poçt ünvanı ilə artıq istifadəçi qeydiyyatdan keçib."
+        )
+
+    hashed_pwd = hash_password(user.password)
+
+    new_user = models.User(
+        email=user.email,
+        hashed_password=hashed_pwd,
+        full_name=user.full_name,
+        is_student=user.is_student,
+        university=user.university,
+        profession=user.profession,
+        budget=user.budget,
+        sleep_schedule=user.sleep_schedule,
+        cleanliness_level=user.cleanliness_level,
+        religion=user.religion,
+        noise_tolerance=user.noise_tolerance,
+        smoking_habit=user.smoking_habit,
+        drinks_alcohol=user.drinks_alcohol,
+        pet_friendly=user.pet_friendly,
+        guest_frequency=user.guest_frequency,
+        work_or_study_schedule=user.work_or_study_schedule,
+        personality_type=user.personality_type
+    )
+
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+
+    return new_user
+
+
+# --- /me routes must come before /{user_id} routes, or FastAPI tries to parse "me" as an int ---
+
+@router.get(
+    "/me",
+    response_model=schemas.UserResponse,
+    summary="Get my own profile",
+    description="Returns the profile of the currently logged-in user, based on their access token."
+)
+def get_my_profile(current_user: models.User = Depends(get_current_user)):
+    return current_user
+
+
+@router.patch(
+    "/me",
+    response_model=schemas.UserResponse,
+    summary="Update own profile",
+    description="Updates the logged-in user's profile fields (budget, lifestyle preferences, etc.). Only fields included in the request body are changed; omitted fields stay as they are."
+)
+def update_my_profile(
+    updates: schemas.UserUpdate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    user_query = db.query(models.User).filter(models.User.id == current_user.id)
+
+    update_data = updates.model_dump(exclude_unset=True)
+    user_query.update(update_data, synchronize_session=False)
+    db.commit()
+
+    return user_query.first()
+
+
+@router.delete(
+    "/me",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Delete own account",
+    description="Permanently deletes the logged-in user's account. All of their listings and sent/received messages are automatically deleted as well (cascade delete). This action cannot be undone."
+)
+def delete_my_account(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    user_query = db.query(models.User).filter(models.User.id == current_user.id)
+    user_query.delete(synchronize_session=False)
+    db.commit()
+
+
+# Hər hansı istifadəçinin profilini görmək
+@router.get(
+    "/{user_id}",
+    response_model=schemas.UserResponse,
+    summary="Get a user's profile",
+    description="Returns public profile details for the specified user by ID."
+)
+def get_user(user_id: int, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"User with id {user_id} not found"
+        )
+
+    return user
+
+
 @router.get(
     "/{user_id}/compatibility",
     response_model=schemas.CompatibilityScoreResponse,
@@ -44,100 +155,3 @@ def get_compatibility_score(
         "compatibility_score": result["compatibility_score"],
         "breakdown": result["breakdown"]
     }
-
-@router.post(
-    "/",
-    response_model=schemas.UserResponse,
-    status_code=status.HTTP_201_CREATED,
-    summary="Register a new user",
-    description="Creates a new user account. If is_student is true, the email must belong to a recognized university domain (ending in edu.az). Optional lifestyle/profile fields (budget, sleep schedule, cleanliness, religion, etc.) can be included to enable compatibility scoring."
-)
-def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    # E-poçt yoxlanışı
-    existing_user = db.query(models.User).filter(models.User.email == user.email).first()
-    if existing_user:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Bu e-poçt ünvanı ilə artıq istifadəçi qeydiyyatdan keçib."
-        )
-
-    hashed_pwd = hash_password(user.password)
-    
-    new_user = models.User(
-        email=user.email,
-        hashed_password=hashed_pwd,
-        full_name=user.full_name,
-        is_student=user.is_student,
-        university=user.university,
-        profession=user.profession,
-        budget=user.budget,
-        sleep_schedule=user.sleep_schedule,
-        cleanliness_level=user.cleanliness_level,
-        religion=user.religion,
-        noise_tolerance=user.noise_tolerance,
-        smoking_habit=user.smoking_habit,
-        drinks_alcohol=user.drinks_alcohol,
-        pet_friendly=user.pet_friendly,
-        guest_frequency=user.guest_frequency,
-        work_or_study_schedule=user.work_or_study_schedule,
-        personality_type=user.personality_type
-    )
-    
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    
-    return new_user
-
-@router.delete(
-    "/me",
-    status_code=status.HTTP_204_NO_CONTENT,
-    summary="Delete own account",
-    description="Permanently deletes the logged-in user's account. All of their listings and sent/received messages are automatically deleted as well (cascade delete). This action cannot be undone."
-)
-def delete_my_account(
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user)
-):
-    user_query = db.query(models.User).filter(models.User.id == current_user.id)
-    user_query.delete(synchronize_session=False)
-    db.commit()
-
-# Hər hansı istifadəçinin profilini görmək
-@router.get(
-    "/{user_id}",
-    response_model=schemas.UserResponse,
-    summary="Get a user's profile",
-    description="Returns public profile details for the specified user by ID."
-)
-def get_user(user_id: int, db: Session = Depends(get_db)):
-    user = db.query(models.User).filter(models.User.id == user_id).first()
-
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"User with id {user_id} not found"
-        )
-
-    return user
-
-
-# Öz profilini yeniləmək
-@router.patch(
-    "/me",
-    response_model=schemas.UserResponse,
-    summary="Update own profile",
-    description="Updates the logged-in user's profile fields (budget, lifestyle preferences, etc.). Only fields included in the request body are changed; omitted fields stay as they are."
-)
-def update_my_profile(
-    updates: schemas.UserUpdate,
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user)
-):
-    user_query = db.query(models.User).filter(models.User.id == current_user.id)
-
-    update_data = updates.model_dump(exclude_unset=True)
-    user_query.update(update_data, synchronize_session=False)
-    db.commit()
-
-    return user_query.first()

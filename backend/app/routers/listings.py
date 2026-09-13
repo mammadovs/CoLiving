@@ -11,6 +11,7 @@ import os
 import shutil
 import uuid
 from fastapi import UploadFile, File
+from app.geocoding import geocode_address
 
 router = APIRouter(
     prefix="/listings",
@@ -57,7 +58,7 @@ def upload_listing_image(
 
     return new_image
 
-# Elan yaratmaq (unchanged)
+# Elan yaratmaq
 @router.post(
     "/",
     response_model=schemas.ListingResponse,
@@ -70,6 +71,8 @@ def create_listing(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
 ):
+    lat, lon = geocode_address(listing.address, listing.district.value if listing.district else None)
+
     new_listing = models.Listing(
         user_id=current_user.id,
         title=listing.title,
@@ -86,26 +89,11 @@ def create_listing(
         religion_preference=listing.religion_preference,
         has_wifi=listing.has_wifi,
         is_furnished=listing.is_furnished,
-        is_active=listing.is_active
+        is_active=listing.is_active,
+        latitude=lat,
+        longitude=lon
     )
-    
-    new_listing = models.Listing(
-        user_id=current_user.id,
-        title=listing.title,
-        description=listing.description,
-        price_per_person=listing.price_per_person,
-        address=listing.address,
-        district=listing.district,
-        nearest_university=listing.nearest_university,
-        available_spots=listing.available_spots,
-        preferred_gender=listing.preferred_gender,
-        smoking_allowed=listing.smoking_allowed,
-        alcohol_allowed=listing.alcohol_allowed,
-        religion_preference=listing.religion_preference,
-        has_wifi=listing.has_wifi,
-        is_furnished=listing.is_furnished,
-        is_active=listing.is_active
-    )
+
     db.add(new_listing)
     db.commit()
     db.refresh(new_listing)
@@ -220,7 +208,13 @@ def update_listing(
             detail="You are not authorized to update this listing"
         )
 
-    listing_query.update(updated_listing.model_dump(), synchronize_session=False)
+    lat, lon = geocode_address(updated_listing.address, updated_listing.district.value if updated_listing.district else None)
+
+    update_data = updated_listing.model_dump()
+    update_data["latitude"] = lat
+    update_data["longitude"] = lon
+
+    listing_query.update(update_data, synchronize_session=False)
     db.commit()
 
     return listing_query.first()
