@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, WebSocket, WebSocketDisconnect, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, and_, desc, func
 from typing import List
 from app.database import get_db
 from app import models, schemas
-from app.oauth2 import get_current_user
+from app.oauth2 import get_current_user, verify_access_token
+from app.connection_manager import manager
 
 router = APIRouter(
     prefix="/messages",
@@ -19,7 +20,7 @@ router = APIRouter(
     summary="Send a message",
     description="Sends a message from the logged-in user to another user. Cannot send a message to yourself."
 )
-def send_message(
+async def send_message(
     message: schemas.MessageCreate,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
@@ -45,6 +46,17 @@ def send_message(
     db.add(new_message)
     db.commit()
     db.refresh(new_message)
+
+    # Canlı push - qarşı tərəf onlayn olsa dərhal mesajı görür
+    await manager.send_personal_message(message.receiver_id, {
+        "id": new_message.id,
+        "sender_id": new_message.sender_id,
+        "receiver_id": new_message.receiver_id,
+        "content": new_message.content,
+        "is_read": new_message.is_read,
+        "created_at": new_message.created_at.isoformat()
+    })
+
     return new_message
 
 
@@ -118,3 +130,28 @@ def get_conversations(
             )
 
     return list(conversations.values())
+
+
+# Canlı mesajlaşma üçün WebSocket bağlantısı
+@router.websocket("/ws")
+async def websocket_endpoint(
+    websocket: WebSocket,
+    token: str = Query(...),
+    db: Session = Depends(get_db)
+):
+    # WebSocket-də token header əvəzinə query param kimi gəlir: ws://.../messages/ws?token=...
+    try:
+        token_data = verify_access_token(token, HTTPException(status_code=401, detail="Invalid token"))
+    except Exception:
+        await websocket.close(code=1008)
+        return
+
+    user_id = int(token_data.id)
+    await manager.connect(user_id, websocket)
+
+    try:
+        while True:
+            # Bağlantını canlı saxlamaq üçün gələn mesajları gözləyirik (indi content istifadə olunmur)
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        manager.disconnect(user_id)

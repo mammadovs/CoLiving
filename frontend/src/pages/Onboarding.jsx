@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Button from '../components/Button/Button'
 import Input from '../components/Input/Input'
@@ -26,8 +26,15 @@ function formatLabel(value) {
 
 export default function Onboarding() {
     const navigate = useNavigate()
-    const { updateUser } = useAuth()
+    const { updateUser, user } = useAuth()
     const { showToast } = useToast()
+
+    useEffect(() => {
+        if (user && !user.is_student) {
+            navigate('/rooms', { replace: true })
+        }
+    }, [user, navigate])
+
 
     const [formData, setFormData] = useState({
         budget: '',

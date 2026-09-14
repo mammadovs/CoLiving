@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime, DECIMAL
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime, DECIMAL, Float
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.database import Base
@@ -22,7 +22,7 @@ class CleanlinessEnum(str, enum.Enum):
 
 class NoiseToleranceEnum(str, enum.Enum):
     quiet = "quiet"
-    moderate = "moderate" 
+    moderate = "moderate"
     loud_ok = "loud_ok"
 
 class GuestFrequencyEnum(str, enum.Enum):
@@ -79,7 +79,6 @@ class User(Base):
     profession = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     budget = Column(DECIMAL, nullable=True)
-    listings = relationship("Listing", cascade="all, delete-orphan")
     sleep_schedule = Column(String, nullable=True)
     cleanliness_level = Column(String, nullable=True)
     religion = Column(String, nullable=True)
@@ -90,6 +89,8 @@ class User(Base):
     guest_frequency = Column(String, nullable=True)
     work_or_study_schedule = Column(String, nullable=True)
     personality_type = Column(String, nullable=True)
+
+    listings = relationship("Listing", back_populates="owner", cascade="all, delete-orphan")
 
 class Listing(Base):
     __tablename__ = "listings"
@@ -104,20 +105,23 @@ class Listing(Base):
     nearest_university = Column(String, default=UniversityEnum.ada, nullable=False)
     available_spots = Column(Integer, nullable=False)
     phone_number = Column(String, nullable=True)
-    
+    latitude = Column(Float, nullable=True)
+    longitude = Column(Float, nullable=True)
+
     # Filtrlər
     preferred_gender = Column(String, default=GenderEnum.any, nullable=False)
     smoking_allowed = Column(Boolean, default=False)
     alcohol_allowed = Column(Boolean, default=False)
     religion_preference = Column(String, default=ReligionEnum.secular, nullable=False)
-    
+
     # Detallar
     has_wifi = Column(Boolean, default=True)
     is_furnished = Column(Boolean, default=True)
     is_active = Column(Boolean, default=True)
-    
+
     # Əlaqə
-    owner = relationship("User")
+    owner = relationship("User", back_populates="listings")
+    images = relationship("ListingImage", back_populates="listing", cascade="all, delete-orphan")
 
 class ListingImage(Base):
     __tablename__ = "listing_images"

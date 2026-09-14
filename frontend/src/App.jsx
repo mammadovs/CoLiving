@@ -8,6 +8,7 @@ import Layout from './components/Layout/Layout'
 import Home from './pages/Home'
 import Rooms from './pages/Rooms'
 import About from './pages/About'
+import MapView from './pages/MapView'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Onboarding from './pages/Onboarding'
@@ -28,6 +29,7 @@ function App() {
 
         <Layout>
           <Routes>
+            <Route path="/map" element={<MapView />} />
             <Route path="/" element={<Home />} />
             <Route path="/rooms" element={<Rooms />} />
             <Route path="/rooms/:id" element={<RoomDetail />} />

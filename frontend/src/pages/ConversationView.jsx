@@ -8,6 +8,7 @@ import Spinner from '../components/Spinner/Spinner'
 import EmptyState from '../components/EmptyState/EmptyState'
 import ErrorState from '../components/ErrorState/ErrorState'
 import { messagesAPI } from '../api/messages'
+import { useMessageSocket } from '../hooks/useMessageSocket'
 import './ConversationView.css'
 
 function formatTime(isoString) {
@@ -51,13 +52,29 @@ function ConversationView() {
         bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
     }, [messages])
 
+    // Live push: only append messages that belong to the conversation currently open
+    useMessageSocket((incoming) => {
+        const belongsToThisConversation =
+            String(incoming.sender_id) === String(userId) || String(incoming.receiver_id) === String(userId)
+
+        if (!belongsToThisConversation) return
+
+        setMessages((current) => {
+            if (current.some((m) => m.id === incoming.id)) return current
+            return [...current, incoming]
+        })
+        setStatus('success')
+    })
+
     const send = async (event) => {
         event.preventDefault()
         if (!draft.trim()) return
         try {
-            await messagesAPI.sendMessage(userId, draft.trim())
+            const sent = await messagesAPI.sendMessage(userId, draft.trim())
             setDraft('')
-            loadConversation()
+            // Add our own sent message immediately; the WebSocket only pushes to the receiver, not back to us
+            setMessages((current) => [...current, sent])
+            setStatus('success')
         } catch (error) {
             setErrorMessage(error.data?.detail || error.message || 'Mesaj göndərmək mümkün olmadı.')
             setStatus('error')
