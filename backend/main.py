@@ -20,11 +20,11 @@ async def global_exception_handler(request: Request, exc: Exception):
     )
 
 origins = [
-    "https://co-living-navy.vercel.app"
+    "https://co-living-navy.vercel.app",
+    "https://co-living-7qj1kvdf0-mammadovs-7482.vercel.app",
+    "https://co-living-git-main-mammadovs-7482.vercel.app",
     "http://localhost:3000",   # React default
     "http://localhost:5173",   # Vite default
-    "http://127.0.0.1:3000",
-    "http://127.0.0.1:5173",
 ]
 
 app.add_middleware(
