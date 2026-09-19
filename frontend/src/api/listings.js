@@ -9,6 +9,11 @@ export const listingsAPI = {
         return apiCall(`/listings?${params.toString()}`, { method: 'GET' })
     },
     getById: async (id) => apiCall(`/listings/${id}`, { method: 'GET' }),
+    geocode: async (address, district) => {
+    const params = new URLSearchParams({ address })
+    if (district) params.append('district', district)
+    return apiCall(`/listings/geocode?${params.toString()}`, { method: 'GET' })
+    },
     create: async (data) => apiCall('/listings/', { method: 'POST', body: JSON.stringify(data) }),
     update: async (id, data) => apiCall(`/listings/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
     delete: async (id) => apiCall(`/listings/${id}`, { method: 'DELETE' }),

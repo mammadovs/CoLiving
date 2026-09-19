@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Upload } from 'lucide-react'
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet'
+import 'leaflet/dist/leaflet.css'
+import L from 'leaflet'
 import Input from '../components/Input/Input'
 import Select from '../components/Select/Select'
 import Textarea from '../components/Textarea/Textarea'
@@ -12,11 +15,39 @@ import ErrorState from '../components/ErrorState/ErrorState'
 import { listingsAPI } from '../api/listings'
 import './ListingEditor.css'
 
+delete L.Icon.Default.prototype._getIconUrl
+L.Icon.Default.mergeOptions({
+    iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+    iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+})
+
+const BAKU_CENTER = [40.4093, 49.8671]
+
+function LocationPicker({ position, onSelect }) {
+    useMapEvents({
+        click(event) {
+            onSelect([event.latlng.lat, event.latlng.lng])
+        },
+    })
+    return position ? <Marker position={position} /> : null
+}
+
+function MapFlyTo({ position }) {
+    const map = useMap()
+    useEffect(() => {
+        if (position) {
+            map.flyTo(position, 16)
+        }
+    }, [position, map])
+    return null
+}
+
 const emptyListing = {
     title: '', description: '', price_per_person: '', address: '', district: '',
     nearest_university: '', available_spots: '', phone_number: '', preferred_gender: 'any',
     smoking_allowed: false, alcohol_allowed: false, religion_preference: 'secular',
-    has_wifi: true, is_furnished: true, images: [],
+    has_wifi: true, is_furnished: true, images: [], latitude: null, longitude: null,
 }
 
 function ListingEditor() {
@@ -29,6 +60,8 @@ function ListingEditor() {
     const [saving, setSaving] = useState(false)
     const [uploading, setUploading] = useState(false)
     const [uploadError, setUploadError] = useState('')
+    const [searchingLocation, setSearchingLocation] = useState(false)
+    const [locationError, setLocationError] = useState('')
 
     const loadListing = useCallback(async () => {
         if (!id) return
@@ -58,6 +91,24 @@ function ListingEditor() {
 
     const update = (key, value) => setForm((current) => ({ ...current, [key]: value }))
 
+    const handleFindOnMap = async () => {
+        if (!form.address.trim()) {
+            setLocationError('Type an address first.')
+            return
+        }
+        setSearchingLocation(true)
+        setLocationError('')
+        try {
+            const result = await listingsAPI.geocode(form.address, form.district)
+            update('latitude', result.latitude)
+            update('longitude', result.longitude)
+        } catch (error) {
+            setLocationError(error.data?.detail || 'Could not find that address on the map. Try adjusting it, or click directly on the map instead.')
+        } finally {
+            setSearchingLocation(false)
+        }
+    }
+
     const handleSubmit = async (event) => {
         event.preventDefault()
         setSaving(true)
@@ -67,6 +118,8 @@ function ListingEditor() {
                 ...form,
                 price_per_person: Number(form.price_per_person),
                 available_spots: Number(form.available_spots),
+                latitude: form.latitude,
+                longitude: form.longitude,
             }
             delete payload.images
 
@@ -116,6 +169,9 @@ function ListingEditor() {
             <Input label="Price per person" type="number" value={form.price_per_person} onChange={(event) => update('price_per_person', event.target.value)} />
             <Input label="Available spots" type="number" value={form.available_spots} onChange={(event) => update('available_spots', event.target.value)} />
             <Input label="Address" value={form.address} onChange={(event) => update('address', event.target.value)} />
+            <Button type="button" variant="secondary" onClick={handleFindOnMap} disabled={searchingLocation}>
+                {searchingLocation ? 'Searching...' : 'Find on map'}
+            </Button>
             <Input label="Phone number" value={form.phone_number} onChange={(event) => update('phone_number', event.target.value)} />
             <Select label="District" value={form.district} onChange={(event) => update('district', event.target.value)} options={['Nasimi', 'Yasamal', 'Sabail', 'Narimanov', 'Other']} />
             <Select label="Nearest university" value={form.nearest_university} onChange={(event) => update('nearest_university', event.target.value)} options={['ADA University', 'BDU', 'ADNSU', 'ATU', 'Other']} />
@@ -127,6 +183,36 @@ function ListingEditor() {
             <Checkbox label="Alcohol allowed" checked={form.alcohol_allowed} onChange={(event) => update('alcohol_allowed', event.target.checked)} toggle />
             <Checkbox label="Has WiFi" checked={form.has_wifi} onChange={(event) => update('has_wifi', event.target.checked)} toggle />
             <Checkbox label="Furnished" checked={form.is_furnished} onChange={(event) => update('is_furnished', event.target.checked)} toggle />
+        </div>
+
+        <div className="listing-map-picker">
+            <h2>Confirm the exact location</h2>
+            <p className="listing-map-hint">Type your address above and click "Find on map", or click directly on the map to place the pin yourself.</p>
+            {locationError && <p className="listing-images-error">{locationError}</p>}
+            <MapContainer
+                center={form.latitude && form.longitude ? [form.latitude, form.longitude] : BAKU_CENTER}
+                zoom={form.latitude && form.longitude ? 15 : 11}
+                scrollWheelZoom={false}
+                className="listing-map-picker-container"
+            >
+                <TileLayer
+                    attribution='&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                    url={`https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/{z}/{x}/{y}?access_token=${import.meta.env.VITE_MAPBOX_TOKEN}`}
+                    tileSize={512}
+                    zoomOffset={-1}
+                />
+                <LocationPicker
+                    position={form.latitude && form.longitude ? [form.latitude, form.longitude] : null}
+                    onSelect={([lat, lng]) => {
+                        update('latitude', lat)
+                        update('longitude', lng)
+                    }}
+                />
+                <MapFlyTo position={form.latitude && form.longitude ? [form.latitude, form.longitude] : null} />
+            </MapContainer>
+            {form.latitude && form.longitude && (
+                <p className="listing-map-selected">Pin placed — this exact spot will be shown to renters.</p>
+            )}
         </div>
 
         {id ? (
