@@ -92,17 +92,17 @@ class ListingCreate(BaseModel):
     nearest_university: UniversityEnum = UniversityEnum.ada
     available_spots: int = Field(gt=0)
     phone_number: Optional[str] = None
-    
-    # Filtrlər
+
     preferred_gender: GenderEnum = GenderEnum.any
     smoking_allowed: bool = False
     alcohol_allowed: bool = False
     religion_preference: ReligionEnum = ReligionEnum.secular
-    
-    # Detallar
+
     has_wifi: bool = True
     is_furnished: bool = True
     is_active: bool = True
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
 
 class ListingResponse(ListingCreate):
     id: int

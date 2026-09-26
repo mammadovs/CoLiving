@@ -69,9 +69,11 @@ function MapView() {
             </div>
 
             <MapContainer center={BAKU_CENTER} zoom={12} className="map-view-container">
-                <TileLayer
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+               <TileLayer
+                    attribution='&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                    url={`https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/{z}/{x}/{y}?access_token=${import.meta.env.VITE_MAPBOX_TOKEN}`}
+                    tileSize={512}
+                    zoomOffset={-1}
                 />
                 {listingsWithCoordinates.map((listing) => (
                     <Marker key={listing.id} position={[listing.latitude, listing.longitude]}>

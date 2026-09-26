@@ -20,6 +20,18 @@ router = APIRouter(
 UPLOAD_DIR = "static/listing_images"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
+# Ünvana görə xəritədə axtarış (elan yaratmadan)
+@router.get(
+    "/geocode",
+    summary="Look up coordinates for an address",
+    description="Converts a typed address into map coordinates, without creating or modifying a listing. Used by the location picker while filling out the listing form."
+)
+def geocode_lookup(address: str, district: Optional[str] = None):
+    lat, lon = geocode_address(address, district)
+    if lat is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Could not find that location")
+    return {"latitude": lat, "longitude": lon}
+
 # Elana şəkil əlavə etmək (yalnız sahibi)
 @router.post(
     "/{listing_id}/images",
@@ -71,7 +83,12 @@ def create_listing(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
 ):
-    lat, lon = geocode_address(listing.address, listing.district.value if listing.district else None)
+    # İstifadəçi xəritədən dəqiq nöqtə seçibsə onu istifadə edirik,
+    # seçməyibsə ünvana əsasən təxmini koordinat tapmağa çalışırıq
+    if listing.latitude is not None and listing.longitude is not None:
+        lat, lon = listing.latitude, listing.longitude
+    else:
+        lat, lon = geocode_address(listing.address, listing.district.value if listing.district else None)
 
     new_listing = models.Listing(
         user_id=current_user.id,
@@ -208,7 +225,10 @@ def update_listing(
             detail="You are not authorized to update this listing"
         )
 
-    lat, lon = geocode_address(updated_listing.address, updated_listing.district.value if updated_listing.district else None)
+    if updated_listing.latitude is not None and updated_listing.longitude is not None:
+        lat, lon = updated_listing.latitude, updated_listing.longitude
+    else:
+        lat, lon = geocode_address(updated_listing.address, updated_listing.district.value if updated_listing.district else None)
 
     update_data = updated_listing.model_dump()
     update_data["latitude"] = lat
