@@ -3,8 +3,8 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import './Signup.css'
+import { UNIVERSITIES } from '../data/options'
 
-const UNIVERSITIES = ['ADA University', 'BDU', 'ADNSU', 'ATU', 'Khazar University', 'Other']
 
 export default function Signup() {
     const navigate = useNavigate()

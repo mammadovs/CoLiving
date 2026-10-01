@@ -5,6 +5,15 @@
   font-size: var(--font-size-md);
   font-weight: 600;
   transition: 0.2s ease;
+  outline: none;
+}
+
+.button:focus-visible {
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+}
+
+.button:active:not(:disabled) {
+  filter: brightness(0.9);
 }
 
 .button-primary {
@@ -23,4 +32,10 @@
 
 .button-secondary:hover {
   opacity: 0.8;
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
 }

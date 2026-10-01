@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
 import Spinner from '../components/Spinner/Spinner'
 import ErrorState from '../components/ErrorState/ErrorState'
 import { listingsAPI } from '../api/listings'
+import { TILE_LAYER } from '../utils/mapTiles'
 import './MapView.css'
 
 // Leaflet's default marker icons don't load correctly with bundlers like Vite
@@ -19,38 +20,45 @@ L.Icon.Default.mergeOptions({
 
 const BAKU_CENTER = [40.4093, 49.8671]
 
+/** Enables scroll-wheel zoom only after click; disables on mouseout. */
+function ScrollWheelController() {
+    const map = useMap()
+    useMapEvents({
+        click() { map.scrollWheelZoom.enable() },
+        mouseout() { map.scrollWheelZoom.disable() },
+    })
+    return null
+}
+
 function MapView() {
     const navigate = useNavigate()
     const [listings, setListings] = useState([])
     const [status, setStatus] = useState('loading')
     const [errorMessage, setErrorMessage] = useState('')
 
-    useEffect(() => {
-        let cancelled = false
-
-        async function loadListings() {
-            setStatus('loading')
-            try {
-                const response = await listingsAPI.getAll({ limit: 100 })
-                const loaded = Array.isArray(response) ? response : response.items || []
-                if (!cancelled) {
-                    setListings(loaded)
-                    setStatus('success')
-                }
-            } catch (error) {
-                if (!cancelled) {
-                    setErrorMessage(error.data?.detail || error.message || 'Xəritəni yükləmək mümkün olmadı.')
-                    setStatus('error')
-                }
+    const loadListings = async () => {
+        setStatus('loading')
+        try {
+            const response = await listingsAPI.getAll({ limit: 100 })
+            const loaded = Array.isArray(response) ? response : response.items || []
+            setListings(loaded)
+            setStatus('success')
+        } catch (error) {
+            let msg = error.data?.detail || error.message || 'Xəritəni yükləmək mümkün olmadı.'
+            if (msg === 'Failed to fetch' || !error.status) {
+                msg = 'We could not reach the server. Please check your connection and try again.'
             }
+            setErrorMessage(msg)
+            setStatus('error')
         }
+    }
 
+    useEffect(() => {
         loadListings()
-        return () => { cancelled = true }
     }, [])
 
     if (status === 'loading') return <Spinner />
-    if (status === 'error') return <ErrorState message={errorMessage} onRetry={() => window.location.reload()} />
+    if (status === 'error') return <ErrorState message={errorMessage} onRetry={loadListings} />
 
     const listingsWithCoordinates = listings.filter(
         (listing) => listing.latitude != null && listing.longitude != null
@@ -68,13 +76,9 @@ function MapView() {
                 </p>
             </div>
 
-            <MapContainer center={BAKU_CENTER} zoom={12} className="map-view-container">
-               <TileLayer
-                    attribution='&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                    url={`https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/{z}/{x}/{y}?access_token=${import.meta.env.VITE_MAPBOX_TOKEN}`}
-                    tileSize={512}
-                    zoomOffset={-1}
-                />
+            <MapContainer center={BAKU_CENTER} zoom={12} scrollWheelZoom={false} className="map-view-container">
+               <TileLayer {...TILE_LAYER} />
+               <ScrollWheelController />
                 {listingsWithCoordinates.map((listing) => (
                     <Marker key={listing.id} position={[listing.latitude, listing.longitude]}>
                         <Popup>

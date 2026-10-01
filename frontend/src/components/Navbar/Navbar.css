@@ -1,25 +1,71 @@
+/* ─────────────────────────────────────────────
+   NAVBAR  –  sticky, scroll-aware, Airbnb-style
+───────────────────────────────────────────── */
+
 .navbar {
   width: 100%;
-  padding: var(--spacing-md) var(--spacing-xl);
+  padding: 0 var(--spacing-xl);
+  height: 64px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid var(--color-border);
-  background-color: var(--color-background);
-  box-sizing: border-box;
-  position: relative;
+
+  /* Sticky */
+  position: sticky;
+  top: 0;
   z-index: 100;
+
+  background-color: var(--color-background);
+  border-bottom: 1px solid var(--color-border);
+  box-sizing: border-box;
+
+  /* Smooth shadow transition */
+  box-shadow: none;
+  transition: box-shadow 0.25s ease;
 }
+
+/* Shadow appears after scroll > 8 px */
+.navbar--scrolled {
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+}
+
+
+/* ─── LOGO ──────────────────────────────────── */
 
 .navbar-logo {
   font-size: var(--font-size-lg);
-  font-weight: 700;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  flex-shrink: 0;
 }
 
 .navbar-logo a {
+  display: flex;
+  align-items: center;
+  gap: 7px;
   color: inherit;
   text-decoration: none;
+  transition: opacity 0.15s;
 }
+
+.navbar-logo a:hover {
+  opacity: 0.75;
+}
+
+.navbar-logo-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--color-primary);
+  color: #fff;
+  flex-shrink: 0;
+}
+
+
+/* ─── MENU WRAPPER ───────────────────────────── */
 
 .navbar-menu {
   display: flex;
@@ -27,102 +73,175 @@
   gap: var(--spacing-xl);
 }
 
+
+/* ─── NAV LINKS  (Airbnb-style underline hover) ─ */
+
 .navbar-links {
   display: flex;
-  gap: var(--spacing-lg);
+  gap: 4px;        /* tighter spacing; padding on each link gives breathing room */
 }
 
-.navbar-links a {
+.nav-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: var(--radius-md);
+
   text-decoration: none;
   color: var(--color-text);
   font-size: var(--font-size-sm);
+  font-weight: 500;
   white-space: nowrap;
+
+  transition: color 0.2s;
 }
 
-.navbar-links a:hover {
+/* Thin animated underline */
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 10px;
+  right: 10px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--color-primary);
+
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-link:hover {
   color: var(--color-primary);
 }
 
+.nav-link:hover::after {
+  transform: scaleX(1);
+}
+
+
+/* ─── AUTH BUTTONS ────────────────────────────── */
+
 .navbar-actions {
   display: flex;
+  align-items: center;
   gap: var(--spacing-sm);
+  flex-shrink: 0;
 }
 
 .login-button,
 .signup-button {
-  padding: var(--spacing-sm) var(--spacing-md);
+  display: inline-flex;
+  align-items: center;
+  padding: 8px var(--spacing-md);
   border-radius: var(--radius-md);
   cursor: pointer;
   font-size: var(--font-size-sm);
+  font-weight: 500;
   white-space: nowrap;
+  text-decoration: none;
+  transition: background 0.18s, border-color 0.18s, color 0.18s;
 }
 
 .login-button {
-  border: 1px solid var(--color-text);
-  background-color: var(--color-background);
+  border: 1px solid var(--color-border);
+  background-color: transparent;
   color: var(--color-text);
+}
+
+.login-button:hover {
+  border-color: var(--color-text);
+  background-color: var(--color-surface, #f5f5f5);
 }
 
 .signup-button {
   border: none;
   background-color: var(--color-primary);
-  color: var(--color-background);
+  color: #fff;
 }
 
 .signup-button:hover {
   background-color: var(--color-primary-hover);
 }
 
-/* Hamburger button */
+
+/* ─── HAMBURGER ───────────────────────────────── */
 
 .menu-button {
   display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   width: 40px;
   height: 40px;
   padding: 8px;
+  gap: 5px;
   border: none;
   background: transparent;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .menu-button span {
   display: block;
-  width: 24px;
+  width: 22px;
   height: 2px;
-  margin: 5px auto;
+  border-radius: 1px;
   background-color: var(--color-text);
-  transition: 0.2s ease;
+  transform-origin: center;
+  transition: transform 0.25s ease, opacity 0.25s ease, width 0.25s ease;
 }
 
-/* Mobile */
+/* Animate to ✕ when open */
+.menu-button--open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.menu-button--open span:nth-child(2) { opacity: 0; width: 0; }
+.menu-button--open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+
+/* ─── MOBILE ──────────────────────────────────── */
 
 @media (max-width: 767px) {
   .navbar {
-    padding: var(--spacing-md);
+    padding: 0 var(--spacing-md);
   }
 
   .menu-button {
-    display: block;
+    display: flex;
+  }
+
+  /* Slide-down animation */
+  @keyframes mobile-slide-down {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   .navbar-menu {
     display: none;
     position: absolute;
-    top: 100%;
+    top: 64px;          /* same as navbar height */
     left: 0;
     width: 100%;
-    padding: var(--spacing-md);
+    padding: var(--spacing-md) var(--spacing-md) var(--spacing-lg);
     box-sizing: border-box;
     flex-direction: column;
     align-items: stretch;
-    gap: var(--spacing-md);
+    gap: var(--spacing-sm);
     border-bottom: 1px solid var(--color-border);
     background-color: var(--color-background);
-    box-shadow: var(--shadow-sm);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
   }
 
   .navbar-menu.open {
     display: flex;
+    animation: mobile-slide-down 0.22s cubic-bezier(0.4, 0, 0.2, 1) both;
   }
 
   .navbar-links {
@@ -130,19 +249,214 @@
     gap: 0;
   }
 
-  .navbar-links a {
-    padding: var(--spacing-md) 0;
+  /* On mobile the underline pill looks odd in a column — use a simple left accent */
+  .nav-link {
+    padding: 12px 4px;
+    border-radius: 0;
     border-bottom: 1px solid var(--color-border);
+    font-size: var(--font-size-base, 15px);
+  }
+
+  .nav-link::after {
+    display: none;   /* disable underline on mobile */
+  }
+
+  .nav-link:hover {
+    color: var(--color-primary);
+    background: transparent;
   }
 
   .navbar-actions {
     width: 100%;
     flex-direction: column;
     gap: var(--spacing-sm);
+    padding-top: var(--spacing-sm);
   }
 
   .login-button,
   .signup-button {
     width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Hide mobile-only links on desktop */
+.mobile-only-link {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .mobile-only-link {
+    display: flex;
+  }
+}
+
+
+/* ─── USER MENU (auth-aware) ─────────────────── */
+
+.user-menu {
+  position: relative;
+}
+
+.user-avatar-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px 5px 5px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-background);
+  cursor: pointer;
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+  white-space: nowrap;
+}
+
+.user-avatar-btn:hover {
+  background: var(--color-surface, #f5f5f5);
+  border-color: var(--color-text);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.user-avatar-img {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.user-avatar-initials {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.user-display-name {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-chevron {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s;
+  color: var(--color-text-muted, #888);
+}
+
+.user-chevron.open {
+  transform: rotate(180deg);
+}
+
+
+/* ─── DROPDOWN PANEL ─────────────────────────── */
+
+.user-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 210px;
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  z-index: 200;
+  padding: 6px 0;
+  animation: dropdown-fade-in 0.15s ease;
+}
+
+@keyframes dropdown-fade-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.user-dropdown-header {
+  padding: 10px 16px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.user-dropdown-name {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-dropdown-email {
+  font-size: 12px;
+  color: var(--color-text-secondary, #888);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-dropdown-divider {
+  margin: 4px 0;
+  border: none;
+  border-top: 1px solid var(--color-border);
+}
+
+.user-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 16px;
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s;
+  box-sizing: border-box;
+}
+
+.user-dropdown-item:hover {
+  background: var(--color-surface, #f5f5f5);
+}
+
+.user-dropdown-logout {
+  color: #e53e3e;
+}
+
+.user-dropdown-logout:hover {
+  background: #fff5f5;
+}
+
+.dropdown-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Mobile dropdown: align left */
+@media (max-width: 767px) {
+  .user-avatar-btn .user-display-name,
+  .user-chevron {
+    display: none;
+  }
+
+  .user-dropdown-menu {
+    right: auto;
+    left: 0;
   }
 }

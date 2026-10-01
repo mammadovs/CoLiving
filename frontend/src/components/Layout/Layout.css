@@ -2,7 +2,7 @@
   width: 100%;
   min-height: 100vh;
 
-  background: #f7fbff;
+  background: var(--color-page-bg);
 }
 
 .layout main {

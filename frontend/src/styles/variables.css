@@ -6,12 +6,14 @@
   --color-secondary: #EAF4FF;
 
   --color-background: #F7FBFF;
+  --color-page-bg: #F7FBFF;
   --color-surface: #FFFFFF;
 
   --color-text: #1F2937;
   --color-text-muted: #6B7280;
 
   --color-border: #D9EAF7;
+  --color-border-strong: #B8D4EA;
 
   --color-success: #22A06B;
   --color-error: #DC2626;
