@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import {
   ShieldCheck,
@@ -21,6 +22,9 @@ import './Home.css'
 function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedRoom, setSelectedRoom] = useState(null)
+  const navigate = useNavigate()
+
+  useEffect(() => { document.title = 'CoLiving' }, [])
 
   const rooms = [
     {
@@ -275,8 +279,6 @@ function Home() {
       </footer>
 
 
-      {/* MODAL */}
-
       {isModalOpen && selectedRoom && (
 
         <Modal
@@ -286,18 +288,41 @@ function Home() {
             setSelectedRoom(null)
           }}
         >
+          <div className="home-modal-content">
+            <img src={selectedRoom.image} alt={selectedRoom.title} className="home-modal-image" style={{ width: '100%', borderRadius: 'var(--radius-md)', marginBottom: 'var(--spacing-md)', maxHeight: '200px', objectFit: 'cover' }} />
+            
+            <p style={{ margin: '0 0 var(--spacing-sm)' }}>
+              <strong>Location:</strong> {selectedRoom.location}
+            </p>
 
-          <p>
-            Location: {selectedRoom.location}
-          </p>
+            <p style={{ margin: '0 0 var(--spacing-sm)' }}>
+              <strong>Roommates:</strong> {selectedRoom.roommates}
+            </p>
 
-          <p>
-            Roommates: {selectedRoom.roommates}
-          </p>
-
-          <p>
-            {selectedRoom.description}
-          </p>
+            <p style={{ margin: '0 0 var(--spacing-md)' }}>
+              {selectedRoom.description}
+            </p>
+            
+            <div style={{ display: 'flex', gap: 'var(--spacing-sm)', justifyContent: 'flex-end' }}>
+              <button 
+                type="button" 
+                onClick={() => navigate('/rooms')}
+                style={{ padding: 'var(--spacing-sm) var(--spacing-md)', background: 'var(--color-primary)', color: '#fff', border: 'none', borderRadius: 'var(--radius-md)', cursor: 'pointer', fontWeight: '500' }}
+              >
+                Browse all rooms
+              </button>
+              <button 
+                type="button" 
+                onClick={() => {
+                  setIsModalOpen(false)
+                  setSelectedRoom(null)
+                }}
+                style={{ padding: 'var(--spacing-sm) var(--spacing-md)', background: 'transparent', color: 'var(--color-text)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', cursor: 'pointer', fontWeight: '500' }}
+              >
+                Close
+              </button>
+            </div>
+          </div>
 
         </Modal>
 

@@ -1,10 +1,4 @@
-.signup-page {
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    padding: var(--spacing-xl) var(--spacing-md);
-    min-height: 100%;
-}
+/* The page wrapper is now AuthLayout – no page-level centering needed here */
 
 .signup-card {
     width: 100%;
@@ -14,26 +8,29 @@
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-md);
     padding: var(--spacing-xl);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
 }
 
 .signup-title {
     font-size: var(--font-size-xl);
     color: var(--color-text);
-    margin-bottom: var(--spacing-xs);
+    margin: 0;
 }
 
 .signup-subtitle {
     color: var(--color-text-muted);
     font-size: var(--font-size-md);
-    margin-bottom: var(--spacing-lg);
+    margin: 0;
 }
 
+/* Student / host toggle */
 .signup-toggle {
     display: flex;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     overflow: hidden;
-    margin-bottom: var(--spacing-lg);
 }
 
 .toggle-option {
@@ -43,6 +40,8 @@
     border: none;
     color: var(--color-text-muted);
     font-size: var(--font-size-sm);
+    font-weight: 500;
+    cursor: pointer;
     transition: background 0.2s, color 0.2s;
 }
 
@@ -51,8 +50,45 @@
     color: #fff;
 }
 
+/* Helper text under toggle */
+.toggle-helper {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* Server error alert */
+.signup-alert {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: rgba(220, 38, 38, 0.08);
+    border: 1px solid rgba(220, 38, 38, 0.25);
+    border-radius: var(--radius-md);
+    color: var(--color-error);
+    font-size: var(--font-size-sm);
+}
+
+.signup-alert svg {
+    flex-shrink: 0;
+}
+
+/* Form layout */
+.signup-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+/* Remove the extra top margin Input adds */
+.signup-form .input-container {
+    margin: 0;
+}
+
+/* University select */
 .form-group {
-    margin-bottom: var(--spacing-md);
     display: flex;
     flex-direction: column;
     gap: var(--spacing-xs);
@@ -61,28 +97,87 @@
 .form-group label {
     font-size: var(--font-size-sm);
     color: var(--color-text);
-    font-weight: 500;
+    font-weight: 600;
 }
 
-.form-group input,
 .form-group select {
     padding: var(--spacing-sm) var(--spacing-md);
     border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-md);
     font-size: var(--font-size-md);
     color: var(--color-text);
-    background: var(--color-surface);
+    background: var(--color-background);
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.15s;
 }
 
-.form-group input:focus,
 .form-group select:focus {
-    outline: none;
     border-color: var(--color-primary);
 }
 
-.field-hint {
-    font-size: var(--font-size-sm);
-    color: var(--color-text-muted);
+/* Password strength */
+.signup-password-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.signup-password-group .input-container {
+    margin: 0;
+}
+
+.password-strength {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.strength-bar {
+    display: flex;
+    gap: 4px;
+    flex: 1;
+}
+
+.strength-segment {
+    flex: 1;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--color-border);
+    transition: background 0.25s;
+}
+
+.strength-segment.strength-weak   { background: var(--color-error); }
+.strength-segment.strength-fair   { background: #F59E0B; }
+.strength-segment.strength-good   { background: #3B82F6; }
+.strength-segment.strength-strong { background: var(--color-success); }
+
+.strength-label {
+    font-size: 12px;
+    font-weight: 600;
+    min-width: 44px;
+    text-align: right;
+}
+
+.strength-label.strength-weak   { color: var(--color-error); }
+.strength-label.strength-fair   { color: #F59E0B; }
+.strength-label.strength-good   { color: #3B82F6; }
+.strength-label.strength-strong { color: var(--color-success); }
+
+/* Terms checkbox row */
+.terms-row {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.terms-link {
+    color: var(--color-primary);
+    text-decoration: underline;
+}
+
+.terms-link:hover {
+    color: var(--color-primary-hover);
 }
 
 .field-error {
@@ -90,36 +185,19 @@
     color: var(--color-error);
 }
 
-.submit-button {
-    width: 100%;
-    padding: var(--spacing-sm) var(--spacing-md);
-    background: var(--color-primary);
-    color: #fff;
-    border: none;
-    border-radius: var(--radius-sm);
-    font-size: var(--font-size-md);
-    font-weight: 600;
-    margin-top: var(--spacing-sm);
-    transition: background 0.2s;
-}
-
-.submit-button:hover:not(:disabled) {
-    background: var(--color-primary-hover);
-}
-
-.submit-button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
+/* Footer */
 .signup-footer {
     text-align: center;
-    margin-top: var(--spacing-lg);
     color: var(--color-text-muted);
     font-size: var(--font-size-sm);
+    margin: 0;
 }
 
 .signup-footer a {
     color: var(--color-primary);
-    font-weight: 500;
+    font-weight: 600;
+}
+
+.signup-footer a:hover {
+    text-decoration: underline;
 }

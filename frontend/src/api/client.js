@@ -20,7 +20,11 @@ const apiCall = async (endpoint, options = {}) => {
     if (response.status === 401) {
         localStorage.removeItem('token')
         localStorage.removeItem('user')
-        if (typeof window !== 'undefined') window.location.href = '/login'
+        const isAuthEndpoint = endpoint === '/login' || endpoint === '/signup'
+        const isAuthPage = ['/login', '/signup'].includes(window.location.pathname)
+        if (typeof window !== 'undefined' && !isAuthEndpoint && !isAuthPage) {
+            window.location.href = '/login'
+        }
     }
 
     if (!response.ok) {

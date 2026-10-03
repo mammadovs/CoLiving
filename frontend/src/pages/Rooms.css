@@ -187,3 +187,28 @@
     font-size: var(--font-size-sm);
     font-style: italic;
 }
+
+/* Result count row */
+.rooms-results-header {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+  margin-bottom: var(--spacing-md);
+}
+
+.rooms-result-count {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.rooms-search-hint {
+  font-style: italic;
+}
+
+/* Load more */
+.rooms-load-more {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--spacing-xl);
+}
