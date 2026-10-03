@@ -38,7 +38,7 @@ function ConversationView() {
             setMessages(loaded)
             setStatus(loaded.length ? 'success' : 'empty')
         } catch (error) {
-            setErrorMessage(error.data?.detail || error.message || 'Mesajları yükləmək mümkün olmadı.')
+            setErrorMessage(error.data?.detail || error.message || 'Could not load messages.')
             setStatus('error')
         }
     }, [userId])
@@ -76,7 +76,7 @@ function ConversationView() {
             setMessages((current) => [...current, sent])
             setStatus('success')
         } catch (error) {
-            setErrorMessage(error.data?.detail || error.message || 'Mesaj göndərmək mümkün olmadı.')
+            setErrorMessage(error.data?.detail || error.message || 'Could not send the message.')
             setStatus('error')
         }
     }
@@ -94,7 +94,7 @@ function ConversationView() {
 
             <div className="conversation-body">
                 {status === 'empty' ? (
-                    <EmptyState title="İlk mesajı siz göndərin" />
+                    <EmptyState title="Send the first message" />
                 ) : (
                     <div className="message-list">
                         {messages.map((message) => {

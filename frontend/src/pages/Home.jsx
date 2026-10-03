@@ -1,86 +1,77 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import {
   ShieldCheck,
   Users,
   Home as HomeIcon,
-  Search,
-  MapPin,
-  GraduationCap,
-  UserPlus,
-  Globe,
-  Mail,
-  MessageCircle,
-  Phone,
-  Heart
+  Search
 } from 'lucide-react'
 
+import room1 from '../assets/room1.jpg'
+import room2 from '../assets/room2.jpg'
+import room3 from '../assets/room3.jpg'
+import room4 from '../assets/room4.jpg'
+
+import Input from '../components/Input/Input'
 import Card from '../components/Card/Card'
-import ErrorState from '../components/ErrorState/ErrorState'
-import EmptyState from '../components/EmptyState/EmptyState'
-import { listingsAPI } from '../api/listings'
-import { resolveImageUrl } from '../utils/resolveImageUrl'
+import Modal from '../components/Modal/Modal'
 
 import './Home.css'
-import { UNIVERSITIES } from '../data/options'
-
-function CardSkeleton() {
-  return (
-    <div className="card-skeleton" aria-hidden="true">
-      <div className="skeleton-image" />
-      <div className="skeleton-body">
-        <div className="skeleton-line skeleton-line--title" />
-        <div className="skeleton-line skeleton-line--meta" />
-        <div className="skeleton-line skeleton-line--meta" />
-        <div className="skeleton-line skeleton-line--desc" />
-        <div className="skeleton-line skeleton-line--desc" />
-        <div className="skeleton-line skeleton-line--btn" />
-      </div>
-    </div>
-  )
-}
 
 function Home() {
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [selectedRoom, setSelectedRoom] = useState(null)
   const navigate = useNavigate()
-  const [listings, setListings] = useState([])
-  const [status, setStatus] = useState('loading')
-  const [errorMessage, setErrorMessage] = useState('')
 
-  const [heroDistrict, setHeroDistrict] = useState('')
-  const [heroUniversity, setHeroUniversity] = useState('')
-  const [heroGuests, setHeroGuests] = useState('')
+  useEffect(() => { document.title = 'CoLiving' }, [])
 
-  const handleSearch = () => {
-    const params = new URLSearchParams()
-    if (heroDistrict) params.append('district', heroDistrict)
-    if (heroUniversity) params.append('nearest_university', heroUniversity)
-    if (heroGuests) params.append('min_available_spots', heroGuests)
-    
-    navigate(`/rooms?${params.toString()}`)
-  }
+  const rooms = [
+    {
+      id: 1,
+      title: 'Baku Student Apartment',
+      location: 'Baku',
+      roommates: '2',
+      description:
+        'Comfortable apartment close to university and public transport.',
+      image: room1
+    },
 
-  const loadListings = async () => {
-    setStatus('loading')
-    setErrorMessage('')
-    try {
-      const response = await listingsAPI.getAll({ limit: 4 })
-      const loaded = Array.isArray(response) ? response : response.items || []
-      setListings(loaded.slice(0, 4))
-      setStatus(loaded.length ? 'success' : 'empty')
-    } catch (error) {
-      let msg = error.data?.detail || error.message || 'Elanları yükləmək mümkün olmadı.'
-      if (msg === 'Failed to fetch' || !error.status) {
-        msg = 'We could not reach the server. Please check your connection and try again.'
-      }
-      setErrorMessage(msg)
-      setStatus('error')
+    {
+      id: 2,
+      title: 'Modern Student House',
+      location: 'Baku',
+      roommates: '1',
+      description:
+        'Modern shared house in a quiet and student-friendly neighborhood.',
+      image: room2
+    },
+
+    {
+      id: 3,
+      title: 'Cozy Downtown Room',
+      location: 'Baku',
+      roommates: '2',
+      description:
+        'Cozy private room located near cafes, shops and city center.',
+      image: room3
+    },
+
+    {
+      id: 4,
+      title: 'Bright Student Home',
+      location: 'Baku',
+      roommates: '3',
+      description:
+        'Bright and spacious home with a friendly student community.',
+      image: room4
     }
-  }
+  ]
 
-  useEffect(() => {
-    loadListings()
-  }, [])
+  const handleViewDetails = (room) => {
+    setSelectedRoom(room)
+    setIsModalOpen(true)
+  }
 
   return (
     <div className="home-page">
@@ -88,14 +79,6 @@ function Home() {
       {/* HERO */}
 
       <section className="home-hero">
-
-        {/* Decorative CSS orbs — pure CSS, no images */}
-        <div className="hero-orb hero-orb--1" aria-hidden="true" />
-        <div className="hero-orb hero-orb--2" aria-hidden="true" />
-        <div className="hero-orb hero-orb--3" aria-hidden="true" />
-        <svg className="hero-ring" aria-hidden="true" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="200" cy="200" r="195" stroke="currentColor" strokeWidth="1" strokeDasharray="6 10" />
-        </svg>
 
         <div className="home-hero-content">
 
@@ -113,63 +96,23 @@ function Home() {
             connect with roommates who match your lifestyle.
           </p>
 
-          {/* Airbnb-style segmented search bar */}
-          <div className="hero-search-bar">
+          <div className="home-search">
 
-            <label className="hero-search-segment" htmlFor="hero-location">
-              <span className="hero-segment-label">
-                <MapPin size={13} strokeWidth={2.5} /> Location
-              </span>
-              <input
-                id="hero-location"
-                type="text"
-                placeholder="Baku, Nasimi..."
-                className="hero-segment-input"
-                value={heroDistrict}
-                onChange={(e) => setHeroDistrict(e.target.value)}
-              />
-            </label>
+            <Input
+              label="Search"
+              placeholder="Search by location..."
+            />
 
-            <div className="hero-search-divider" aria-hidden="true" />
-
-            <label className="hero-search-segment" htmlFor="hero-university">
-              <span className="hero-segment-label">
-                <GraduationCap size={13} strokeWidth={2.5} /> University
-              </span>
-              <select id="hero-university" className="hero-segment-input" value={heroUniversity} onChange={(e) => setHeroUniversity(e.target.value)}>
-                <option value="">Any university</option>
-                {UNIVERSITIES.map((u) => (
-                  <option key={u} value={u}>{u}</option>
-                ))}
-              </select>
-            </label>
-
-            <div className="hero-search-divider" aria-hidden="true" />
-
-            <label className="hero-search-segment" htmlFor="hero-guests">
-              <span className="hero-segment-label">
-                <UserPlus size={13} strokeWidth={2.5} /> Guests
-              </span>
-              <select id="hero-guests" className="hero-segment-input" value={heroGuests} onChange={(e) => setHeroGuests(e.target.value)}>
-                <option value="">Any</option>
-                <option value="1">1 person</option>
-                <option value="2">2 people</option>
-                <option value="3">3+ people</option>
-              </select>
-            </label>
-
-            <button type="button" className="hero-search-button" aria-label="Search rooms" onClick={handleSearch}>
-              <Search size={18} strokeWidth={2.5} />
-              <span>Search</span>
+            <button
+              type="button"
+              className="hero-search-button"
+            >
+              <Search size={18} />
+              Search
             </button>
 
           </div>
 
-        </div>
-
-        <div className="home-hero-photos">
-          <img src="/src/assets/room1.jpg" alt="Room 1" className="hero-photo photo-1" />
-          <img src="/src/assets/room3.jpg" alt="Room 2" className="hero-photo photo-2" />
         </div>
 
       </section>
@@ -196,42 +139,23 @@ function Home() {
         </div>
 
 
-        {status === 'loading' && (
-          <div className="home-room-grid">
-            {Array.from({ length: 4 }).map((_, i) => <CardSkeleton key={i} />)}
-          </div>
-        )}
+        <div className="home-room-grid">
 
-        {status === 'error' && (
-          <ErrorState message={errorMessage} onRetry={loadListings} />
-        )}
+          {rooms.map((room) => (
+            <Card
+              key={room.id}
+              title={room.title}
+              location={room.location}
+              roommates={room.roommates}
+              description={room.description}
+              image={room.image}
+              onViewDetails={() =>
+                handleViewDetails(room)
+              }
+            />
+          ))}
 
-        {status === 'empty' && (
-          <EmptyState title="No rooms found" message="There are no rooms available at the moment." />
-        )}
-
-        {status === 'success' && listings.length > 0 && (
-          <div className="home-room-grid">
-
-            {listings.map((listing) => (
-              <Card
-                key={listing.id}
-                id={listing.id}
-                onViewDetails={() => navigate(`/rooms/${listing.id}`)}
-                title={listing.title}
-                location={listing.address}
-                roommates={listing.available_spots}
-                description={listing.description}
-                image={resolveImageUrl(listing.images?.[0]?.image_url)}
-                images={listing.images?.map((img) => resolveImageUrl(img.image_url)).filter(Boolean)}
-                price={listing.price_per_person}
-                rating={listing.rating ?? null}
-                reviewCount={listing.review_count ?? null}
-              />
-            ))}
-
-          </div>
-        )}
+        </div>
 
       </section>
 
@@ -328,46 +252,81 @@ function Home() {
             Find your place. Find your people.
           </p>
 
-          <p className="footer-tagline">
-            Made for students in Baku <Heart size={14} fill="currentColor" color="var(--color-primary)" />
-          </p>
-
         </div>
 
 
         <div className="footer-links">
 
-          <Link to="/">
+          <a href="/">
             Home
-          </Link>
+          </a>
 
-          <Link to="/rooms">
+          <a href="/rooms">
             Find a Room
-          </Link>
+          </a>
 
-          <Link to="/about">
+          <a href="/about">
             About
-          </Link>
+          </a>
 
         </div>
 
 
-        <div className="footer-right">
-          <p className="footer-copy">
-            © 2026 CoLiving. All rights reserved.
-          </p>
-          <div className="footer-social">
-            <a href="#" aria-label="Website" target="_blank" rel="noopener noreferrer"><Globe size={18} /></a>
-            <a href="#" aria-label="Email" target="_blank" rel="noopener noreferrer"><Mail size={18} /></a>
-            <a href="#" aria-label="Message" target="_blank" rel="noopener noreferrer"><MessageCircle size={18} /></a>
-            <a href="#" aria-label="Phone" target="_blank" rel="noopener noreferrer"><Phone size={18} /></a>
-          </div>
-        </div>
+        <p className="footer-copy">
+          © 2026 CoLiving. All rights reserved.
+        </p>
 
       </footer>
 
 
+      {isModalOpen && selectedRoom && (
 
+        <Modal
+          title={selectedRoom.title}
+          onClose={() => {
+            setIsModalOpen(false)
+            setSelectedRoom(null)
+          }}
+        >
+          <div className="home-modal-content">
+            <img src={selectedRoom.image} alt={selectedRoom.title} className="home-modal-image" style={{ width: '100%', borderRadius: 'var(--radius-md)', marginBottom: 'var(--spacing-md)', maxHeight: '200px', objectFit: 'cover' }} />
+            
+            <p style={{ margin: '0 0 var(--spacing-sm)' }}>
+              <strong>Location:</strong> {selectedRoom.location}
+            </p>
+
+            <p style={{ margin: '0 0 var(--spacing-sm)' }}>
+              <strong>Roommates:</strong> {selectedRoom.roommates}
+            </p>
+
+            <p style={{ margin: '0 0 var(--spacing-md)' }}>
+              {selectedRoom.description}
+            </p>
+            
+            <div style={{ display: 'flex', gap: 'var(--spacing-sm)', justifyContent: 'flex-end' }}>
+              <button 
+                type="button" 
+                onClick={() => navigate('/rooms')}
+                style={{ padding: 'var(--spacing-sm) var(--spacing-md)', background: 'var(--color-primary)', color: '#fff', border: 'none', borderRadius: 'var(--radius-md)', cursor: 'pointer', fontWeight: '500' }}
+              >
+                Browse all rooms
+              </button>
+              <button 
+                type="button" 
+                onClick={() => {
+                  setIsModalOpen(false)
+                  setSelectedRoom(null)
+                }}
+                style={{ padding: 'var(--spacing-sm) var(--spacing-md)', background: 'transparent', color: 'var(--color-text)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', cursor: 'pointer', fontWeight: '500' }}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+
+        </Modal>
+
+      )}
 
     </div>
   )

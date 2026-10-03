@@ -1,347 +1,152 @@
-/* ═══════════════════════════════════════════
-   CARD  –  Airbnb / Roomi level
-═══════════════════════════════════════════ */
-
 .card {
-  width: 100%;
   display: flex;
   flex-direction: column;
+  width: 100%;
   overflow: hidden;
 
   border: 1px solid var(--color-border);
-  border-radius: 18px;
+  border-radius: var(--radius-lg);
 
   background-color: var(--color-background);
 
-  /* Softer, multi-layer shadow */
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.06),
-    0 4px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-sm);
 
   transition:
-    transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1),
-    box-shadow 0.28s ease;
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .card:hover {
-  transform: translateY(-6px);
-  box-shadow:
-    0 2px 6px  rgba(0, 0, 0, 0.07),
-    0 12px 28px rgba(0, 0, 0, 0.10);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
 }
 
 
-/* ─── IMAGE ─────────────────────────────── */
+/* =========================
+   IMAGE
+========================= */
 
 .card-image {
-  position: relative;
   width: 100%;
-  height: 230px;
+  height: 220px;
+
   overflow: hidden;
+
   background-color: #eaf4ff;
-  flex-shrink: 0;
 }
 
 .card-image img {
   width: 100%;
   height: 100%;
+
   display: block;
   object-fit: cover;
-  transition: transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: transform 0.3s ease;
 }
 
 .card:hover .card-image img {
-  transform: scale(1.06);
-}
-
-/* No-image placeholder */
-.card-image-placeholder {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #b0c9de;
-  background: linear-gradient(135deg, #eaf4ff 0%, #f4f9ff 100%);
+  transform: scale(1.04);
 }
 
 
-/* ─── FAVOURITE BUTTON ───────────────────── */
-
-.card-fav-btn {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  z-index: 3;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-
-  background: rgba(255, 255, 255, 0.82);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-
-  color: #9ca3af;          /* unfav: grey */
-  box-shadow: 0 1px 6px rgba(0,0,0,0.14);
-
-  transition: background 0.18s, color 0.18s, transform 0.18s;
-}
-
-.card-fav-btn:hover {
-  background: #fff;
-  transform: scale(1.12);
-}
-
-/* Active / favourited state */
-.card-fav-btn--active {
-  color: #f43f5e;          /* rose-500 */
-  background: #fff;
-}
-
-.card-fav-btn--active:hover {
-  color: #e11d48;
-}
-
-
-/* ─── PRICE BADGE ───────────────────────── */
-
-.card-price-badge {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  z-index: 2;
-
-  padding: 5px 11px;
-
-  background: rgba(15, 23, 42, 0.55);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 999px;
-
-  color: #fff;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  white-space: nowrap;
-
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
-  pointer-events: none;
-}
-
-.card-price-unit {
-  font-weight: 400;
-  font-size: 11px;
-  opacity: 0.85;
-}
-
-
-/* ─── CAROUSEL DOTS ─────────────────────── */
-
-.card-dots {
-  position: absolute;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 3;
-
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.card-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-
-  background: rgba(255, 255, 255, 0.55);
-  transition: background 0.18s, transform 0.18s;
-}
-
-.card-dot--active {
-  background: #fff;
-  transform: scale(1.3);
-}
-
-
-/* ─── CONTENT ───────────────────────────── */
+/* =========================
+   CONTENT
+========================= */
 
 .card-content {
-  flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 18px 20px 20px;
+  flex: 1;
+  padding: var(--spacing-lg);
   text-align: left;
-  gap: 0;
 }
 
-.card-title {
-  margin: 0 0 6px;
-  font-size: 16px;
+.card-content h2 {
+  margin: 0 0 14px;
+
+  font-size: var(--font-size-lg);
   font-weight: 700;
-  line-height: 1.3;
-  color: var(--color-text);
 
-  /* Clamp to 2 lines */
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-
-/* ─── STAR RATING ───────────────────────── */
-
-.card-rating {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  margin-bottom: 10px;
-}
-
-.card-stars {
-  display: flex;
-  align-items: center;
-  gap: 1px;
-}
-
-.card-stars svg.star--filled {
-  color: #f59e0b;           /* amber-400 */
-  fill: currentColor;
-}
-
-.card-stars svg.star--empty {
-  color: #d1d5db;           /* gray-300 */
-}
-
-.card-rating-label {
-  font-size: 12px;
-  font-weight: 600;
   color: var(--color-text);
 }
 
-.card-rating-count {
-  font-weight: 400;
-  color: var(--color-text-muted);
-}
 
-.card-rating-placeholder {
-  font-size: 11px;
-  font-weight: 700;
-  color: #10b981;           /* emerald – "new" accent */
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-
-/* ─── META INFO ─────────────────────────── */
+/* =========================
+   INFO
+========================= */
 
 .card-info {
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  margin-bottom: 10px;
+
+  gap: 9px;
+
+  margin-bottom: 14px;
 }
 
 .card-info-item {
   display: flex;
   align-items: center;
-  gap: 6px;
+
+  gap: 8px;
+
   color: var(--color-text-muted);
-  font-size: 13px;
+
+  font-size: var(--font-size-sm);
 }
 
 .card-info-item svg {
   flex-shrink: 0;
+
   color: var(--color-primary);
 }
 
 
-/* ─── DESCRIPTION ───────────────────────── */
+/* =========================
+   DESCRIPTION
+========================= */
 
 .card-description {
-  margin: 0 0 14px;
+  margin: 0 0 var(--spacing-lg);
   color: var(--color-text-muted);
-  font-size: 13px;
-  line-height: 1.55;
-
-  /* Clamp to 3 lines */
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+  
   display: -webkit-box;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
 
-/* ─── FOOTER: price repeat + CTA ────────── */
+/* =========================
+   BUTTON
+========================= */
 
-.card-footer {
+.card-button {
   margin-top: auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding-top: 14px;
-  border-top: 1px solid var(--color-border);
-}
-
-.card-footer-price {
-  margin: 0;
-  font-size: 14px;
-  color: var(--color-text);
-  white-space: nowrap;
-}
-
-.card-footer-price strong {
-  font-size: 17px;
-  font-weight: 800;
-  color: var(--color-primary);
-}
-
-.card-footer-price span {
-  font-size: 12px;
-  color: var(--color-text-muted);
-}
-
-/* Button inside card footer */
-.card-footer .button {
-  flex-shrink: 0;
-  padding: 9px 18px;
-  font-size: 13px;
-}
-
-/* Full-width button when no price shown */
-.card-footer:not(:has(.card-footer-price)) .button {
   width: 100%;
 }
 
+.card-button-icon {
+  transition: transform 0.2s ease;
+}
 
-/* ─── MOBILE ────────────────────────────── */
+.card:hover .card-button-icon {
+  transform: translateX(3px);
+}
+
+
+/* =========================
+   MOBILE
+========================= */
 
 @media (max-width: 767px) {
   .card-image {
-    height: 200px;
+    height: 190px;
   }
 
   .card-content {
-    padding: 16px 16px 18px;
-  }
-
-  .card-title {
-    font-size: 15px;
+    padding: 20px;
   }
 }
