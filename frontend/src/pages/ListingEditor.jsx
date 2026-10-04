@@ -13,6 +13,9 @@ import Spinner from '../components/Spinner/Spinner'
 import EmptyState from '../components/EmptyState/EmptyState'
 import ErrorState from '../components/ErrorState/ErrorState'
 import { listingsAPI } from '../api/listings'
+import { useToast } from '../context/ToastContext'
+import { getImageUrl } from '../utils/imageUrl'
+import { UNIVERSITIES, DISTRICTS, GENDERS, RELIGIONS } from '../constants/options'
 import './ListingEditor.css'
 
 delete L.Icon.Default.prototype._getIconUrl
@@ -62,6 +65,9 @@ function ListingEditor() {
     const [uploadError, setUploadError] = useState('')
     const [searchingLocation, setSearchingLocation] = useState(false)
     const [locationError, setLocationError] = useState('')
+    const [errors, setErrors] = useState({})
+    
+    const { showToast } = useToast()
 
     const loadListing = useCallback(async () => {
         if (!id) return
@@ -79,7 +85,7 @@ function ListingEditor() {
                 setStatus('empty')
                 return
             }
-            setErrorMessage(error.data?.detail || error.message || 'Elanı yükləmək mümkün olmadı.')
+            setErrorMessage(error.data?.detail || error.message || 'Could not load the listing.')
             setStatus('error')
         }
     }, [id])
@@ -89,7 +95,10 @@ function ListingEditor() {
         loadListing()
     }, [loadListing])
 
-    const update = (key, value) => setForm((current) => ({ ...current, [key]: value }))
+    const update = (key, value) => {
+        setForm((current) => ({ ...current, [key]: value }))
+        if (errors[key]) setErrors((prev) => ({ ...prev, [key]: null }))
+    }
 
     const handleFindOnMap = async () => {
         if (!form.address.trim()) {
@@ -109,8 +118,29 @@ function ListingEditor() {
         }
     }
 
+    const validate = () => {
+        const nextErrors = {}
+        if (!form.title.trim() || form.title.length < 5) nextErrors.title = 'Title is required (min 5 characters).'
+        if (!form.description.trim() || form.description.length < 20) nextErrors.description = 'Description is required (min 20 characters).'
+        if (!form.price_per_person || Number(form.price_per_person) <= 0) nextErrors.price_per_person = 'Price must be greater than 0.'
+        if (!form.available_spots || Number(form.available_spots) < 1) nextErrors.available_spots = 'Available spots must be at least 1.'
+        if (!form.address.trim()) nextErrors.address = 'Address is required.'
+        if (!form.district) nextErrors.district = 'District is required.'
+        if (!form.nearest_university) nextErrors.nearest_university = 'Nearest university is required.'
+
+        setErrors(nextErrors)
+
+        if (Object.keys(nextErrors).length > 0) {
+            window.scrollTo({ top: 0, behavior: 'smooth' })
+            return false
+        }
+        return true
+    }
+
     const handleSubmit = async (event) => {
         event.preventDefault()
+        if (!validate()) return
+        
         setSaving(true)
         setErrorMessage('')
         try {
@@ -125,14 +155,16 @@ function ListingEditor() {
 
             if (id) {
                 await listingsAPI.update(id, payload)
+                showToast('Listing updated', 'success')
                 navigate('/rooms')
             } else {
                 // New listing: go to its edit page next, since photo upload needs a real listing_id
                 const created = await listingsAPI.create(payload)
+                showToast('Listing created! Now add some photos.', 'success')
                 navigate(`/listings/${created.id}/edit`, { replace: true })
             }
         } catch (error) {
-            setErrorMessage(error.data?.detail || error.message || 'Elanı yadda saxlamaq mümkün olmadı.')
+            setErrorMessage(error.data?.detail || error.message || 'Could not save the listing.')
             setStatus('error')
         } finally {
             setSaving(false)
@@ -149,7 +181,7 @@ function ListingEditor() {
             const uploadedImage = await listingsAPI.uploadImage(id, file)
             setForm((current) => ({ ...current, images: [...(current.images || []), uploadedImage] }))
         } catch (error) {
-            setUploadError(error.data?.detail || error.message || 'Şəkli yükləmək mümkün olmadı.')
+            setUploadError(error.data?.detail || error.message || 'Could not upload the photo.')
         } finally {
             setUploading(false)
             if (fileInputRef.current) fileInputRef.current.value = ''
@@ -157,26 +189,26 @@ function ListingEditor() {
     }
 
     if (status === 'loading') return <Spinner />
-    if (status === 'empty') return <EmptyState title="Bu elan tapılmadı" />
+    if (status === 'empty') return <EmptyState title="Listing not found" />
     if (status === 'error' && id && !form.title) return <ErrorState message={errorMessage} onRetry={loadListing} />
 
-    return <form className="listing-editor" onSubmit={handleSubmit}>
+    return <form className="listing-editor" onSubmit={handleSubmit} noValidate>
         <h1>{id ? 'Edit listing' : 'Create a listing'}</h1>
         {status === 'error' && <ErrorState message={errorMessage} onRetry={id ? loadListing : () => setStatus('success')} />}
-        <Input label="Title" value={form.title} onChange={(event) => update('title', event.target.value)} />
-        <Textarea label="Description" value={form.description} onChange={(event) => update('description', event.target.value)} />
+        <Input id="form-title" label="Title" value={form.title} onChange={(event) => update('title', event.target.value)} required error={errors.title} />
+        <Textarea id="form-desc" label="Description" value={form.description} onChange={(event) => update('description', event.target.value)} required error={errors.description} />
         <div className="listing-grid">
-            <Input label="Price per person" type="number" value={form.price_per_person} onChange={(event) => update('price_per_person', event.target.value)} />
-            <Input label="Available spots" type="number" value={form.available_spots} onChange={(event) => update('available_spots', event.target.value)} />
-            <Input label="Address" value={form.address} onChange={(event) => update('address', event.target.value)} />
+            <Input id="form-price" label="Price per person (AZN)" type="number" value={form.price_per_person} onChange={(event) => update('price_per_person', event.target.value)} required error={errors.price_per_person} />
+            <Input id="form-spots" label="Available spots" type="number" value={form.available_spots} onChange={(event) => update('available_spots', event.target.value)} required error={errors.available_spots} />
+            <Input id="form-address" label="Address" value={form.address} onChange={(event) => update('address', event.target.value)} required error={errors.address} />
             <Button type="button" variant="secondary" onClick={handleFindOnMap} disabled={searchingLocation}>
                 {searchingLocation ? 'Searching...' : 'Find on map'}
             </Button>
-            <Input label="Phone number" value={form.phone_number} onChange={(event) => update('phone_number', event.target.value)} />
-            <Select label="District" value={form.district} onChange={(event) => update('district', event.target.value)} options={['Nasimi', 'Yasamal', 'Sabail', 'Narimanov', 'Other']} />
-            <Select label="Nearest university" value={form.nearest_university} onChange={(event) => update('nearest_university', event.target.value)} options={['ADA University', 'BDU', 'ADNSU', 'ATU', 'Other']} />
-            <Select label="Preferred gender" value={form.preferred_gender} onChange={(event) => update('preferred_gender', event.target.value)} options={['any', 'male', 'female']} />
-            <Select label="Religion preference" value={form.religion_preference} onChange={(event) => update('religion_preference', event.target.value)} options={['secular', 'muslim', 'christian', 'other']} />
+            <Input id="form-phone" label="Phone number" value={form.phone_number} onChange={(event) => update('phone_number', event.target.value)} hint="e.g. +994 50 123 45 67" />
+            <Select id="form-district" label="District" value={form.district} onChange={(event) => update('district', event.target.value)} options={DISTRICTS} required error={errors.district} />
+            <Select id="form-uni" label="Nearest university" value={form.nearest_university} onChange={(event) => update('nearest_university', event.target.value)} options={UNIVERSITIES} required error={errors.nearest_university} />
+            <Select id="form-gender" label="Preferred gender" value={form.preferred_gender} onChange={(event) => update('preferred_gender', event.target.value)} options={GENDERS} />
+            <Select id="form-rel" label="Religion preference" value={form.religion_preference} onChange={(event) => update('religion_preference', event.target.value)} options={RELIGIONS} />
         </div>
         <div className="listing-options">
             <Checkbox label="Smoking allowed" checked={form.smoking_allowed} onChange={(event) => update('smoking_allowed', event.target.checked)} toggle />
@@ -221,7 +253,7 @@ function ListingEditor() {
                 {uploadError && <p className="listing-images-error">{uploadError}</p>}
                 <div className="listing-images-grid">
                     {(form.images || []).map((image) => (
-                        <img key={image.id} src={image.image_url} alt="Listing" className="listing-image-thumb" />
+                        <img key={image.id} src={getImageUrl(image.image_url)} alt="Listing" className="listing-image-thumb" />
                     ))}
                     <label className="listing-image-upload">
                         <input

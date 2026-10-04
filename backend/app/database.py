@@ -5,10 +5,13 @@ from app.config import settings
 
 SQLALCHEMY_DATABASE_URL = settings.database_url
 
-# PostgreSQL bağlantı linki (öz məlumatlarına uyğun dəyişəcəksən: username, password, host, port, dbname)
-
-# Engine yaradılması
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+# SQLite üçün multi-threading dəstəyi (check_same_thread: False), digər bazalar üçün standart engine
+if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
+    engine = create_engine(
+        SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
+    )
+else:
+    engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
 # Hər bir sorğu (request) üçün yeni verilənlər bazası sessiyası yaratmaq üçün
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

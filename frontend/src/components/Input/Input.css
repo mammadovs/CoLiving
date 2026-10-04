@@ -23,3 +23,23 @@
 .input-container input:focus {
   border-color: var(--color-primary);
 }
+
+.input-container input.input--error {
+  border-color: var(--color-error);
+}
+
+.input-container input.input--error:focus {
+  border-color: var(--color-error);
+}
+
+.input-error-text {
+  font-size: var(--font-size-sm);
+  color: var(--color-error);
+  margin-top: -4px;
+}
+
+.input-hint-text {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin-top: -4px;
+}

@@ -1,7 +1,9 @@
 import { CheckCircle2 } from 'lucide-react'
 import './Compatibility.css'
 
-function Compatibility({ score = 86, breakdown = [] }) {
+function Compatibility({ score, breakdown = [] }) {
+    if (score == null) return null
+
     return (
         <section className="compatibility">
             <div className="compatibility-score"><strong>{score}%</strong><span>Compatibility</span></div>

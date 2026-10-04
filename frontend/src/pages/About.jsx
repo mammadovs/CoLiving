@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import {
   Home,
   Users,
@@ -7,6 +8,8 @@ import {
 import './About.css'
 
 function About() {
+  useEffect(() => { document.title = 'About - CoLiving' }, [])
+
   return (
     <div className="about-page">
 

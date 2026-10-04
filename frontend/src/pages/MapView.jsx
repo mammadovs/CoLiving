@@ -25,6 +25,8 @@ function MapView() {
     const [status, setStatus] = useState('loading')
     const [errorMessage, setErrorMessage] = useState('')
 
+    useEffect(() => { document.title = 'Map - CoLiving' }, [])
+
     useEffect(() => {
         let cancelled = false
 
@@ -39,7 +41,7 @@ function MapView() {
                 }
             } catch (error) {
                 if (!cancelled) {
-                    setErrorMessage(error.data?.detail || error.message || 'Xəritəni yükləmək mümkün olmadı.')
+                    setErrorMessage(error.data?.detail || error.message || 'Could not load the map.')
                     setStatus('error')
                 }
             }

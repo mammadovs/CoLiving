@@ -1,4 +1,4 @@
-import { MapPin, Users } from 'lucide-react'
+import { MapPin, Users, ArrowRight } from 'lucide-react'
 
 import Button from '../Button/Button'
 
@@ -35,7 +35,7 @@ function Card({
 
           <div className="card-info-item">
             <Users size={18} strokeWidth={2} />
-            <span>{roommates} roommates</span>
+            <span>{roommates === 0 ? 'No roommates yet' : `${roommates} roommate${roommates === 1 ? '' : 's'}`}</span>
           </div>
 
         </div>
@@ -44,8 +44,9 @@ function Card({
           {description}
         </p>
 
-        <Button onClick={onViewDetails}>
+        <Button variant="secondary" onClick={onViewDetails} className="card-button">
           View Details
+          <ArrowRight size={18} className="card-button-icon" />
         </Button>
 
       </div>
