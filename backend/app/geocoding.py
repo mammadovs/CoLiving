@@ -4,31 +4,55 @@ import requests
 logger = logging.getLogger(__name__)
 
 NOMINATIM_URL = "https://nominatim.openstreetmap.org/search"
+PHOTON_URL = "https://photon.komoot.io/api/"
 
 
 def _query_nominatim(query: str):
-    """Executes a single geocoding query against Nominatim with error logging."""
+    """Executes a geocoding query against Nominatim with a Photon API fallback for cloud IPs."""
+    # 1. Primary Attempt: Nominatim with custom User-Agent
     try:
+        headers = {
+            "User-Agent": "CoLivingBakuProject/1.0 (mammadov.coliving.app@gmail.com)",
+            "Accept-Language": "en,az",
+        }
         response = requests.get(
             NOMINATIM_URL,
             params={"q": query, "format": "json", "limit": 1},
-            headers={"User-Agent": "CoLiving-App/1.0 (student project - contact@example.com)"},
+            headers=headers,
             timeout=5,
         )
-        response.raise_for_status()
-        results = response.json()
-        if results:
-            return float(results[0]["lat"]), float(results[0]["lon"])
-    except requests.exceptions.RequestException as e:
-        logger.warning(f"[Geocoding] Nominatim request failed for '{query}': {e}")
+        if response.status_code == 200:
+            results = response.json()
+            if results:
+                return float(results[0]["lat"]), float(results[0]["lon"])
+        else:
+            logger.warning(f"[Geocoding] Nominatim returned status {response.status_code} for '{query}'")
     except Exception as e:
-        logger.error(f"[Geocoding] Unexpected error for '{query}': {e}")
+        logger.warning(f"[Geocoding] Nominatim request failed for '{query}': {e}")
+
+    # 2. Fallback Attempt: Photon API (Komoot OpenStreetMap index, friendly to cloud IPs)
+    try:
+        response = requests.get(
+            PHOTON_URL,
+            params={"q": query, "limit": 1},
+            timeout=5,
+        )
+        if response.status_code == 200:
+            data = response.json()
+            features = data.get("features", [])
+            if features:
+                coords = features[0]["geometry"]["coordinates"]
+                # Photon returns coordinates in [longitude, latitude] order
+                return float(coords[1]), float(coords[0])
+    except Exception as e:
+        logger.error(f"[Geocoding] Photon fallback failed for '{query}': {e}")
+
     return None, None
 
 
 def geocode_address(address: str, district: str = None, city: str = "Baku", country: str = "Azerbaijan"):
     """
-    Converts a free-text address into (latitude, longitude) using Nominatim.
+    Converts a free-text address into (latitude, longitude) using Nominatim with Photon fallback.
     Filters out invalid placeholders like 'Select an option' and handles fallback queries.
     """
     clean_address = address.strip() if address else ""
