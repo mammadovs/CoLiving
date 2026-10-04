@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, model_validator, Field
+from pydantic import BaseModel, EmailStr, model_validator, Field, field_serializer
 from typing import Optional, List
 from datetime import datetime
 from typing import Optional
@@ -110,6 +110,12 @@ class ListingResponse(ListingCreate):
     images: List[ListingImageResponse] = []
     latitude: Optional[float] = None
     longitude: Optional[float] = None
+
+    @field_serializer('price_per_person')
+    def serialize_price(self, value: Decimal) -> float:
+        if value is None:
+            return 0.0
+        return float(round(value, 2))
 
     class Config:
         from_attributes = True
