@@ -1,3 +1,4 @@
+from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.database import get_db
@@ -120,6 +121,24 @@ def get_user(user_id: int, db: Session = Depends(get_db)):
         )
 
     return user
+
+
+@router.get(
+    "/{user_id}/listings",
+    response_model=List[schemas.ListingResponse],
+    summary="Get user's listings",
+    description="Returns all listings created by the specified user."
+)
+def get_user_listings(user_id: int, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"User with id {user_id} not found"
+        )
+
+    listings = db.query(models.Listing).filter(models.Listing.owner_id == user_id).all()
+    return listings
 
 
 @router.get(
