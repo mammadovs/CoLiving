@@ -137,7 +137,7 @@ def get_user_listings(user_id: int, db: Session = Depends(get_db)):
             detail=f"User with id {user_id} not found"
         )
 
-    listings = db.query(models.Listing).filter(models.Listing.owner_id == user_id).all()
+    listings = db.query(models.Listing).filter(models.Listing.user_id == user_id).all()
     return listings
 
 
