@@ -1,4 +1,3 @@
-# routers/listings.py
 from fastapi import APIRouter, Depends, status, Query, HTTPException
 from sqlalchemy.orm import Session
 from typing import List, Optional
@@ -267,5 +266,6 @@ def delete_listing(
             detail="You are not authorized to delete this listing"
         )
 
+    db.query(models.ListingImage).filter(models.ListingImage.listing_id == listing_id).delete(synchronize_session=False)
     listing_query.delete(synchronize_session=False)
     db.commit()
